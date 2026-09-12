@@ -14,7 +14,7 @@ export const PHASES: readonly Phase[] = [
     id: 0,
     title: "Fundação",
     version: "v0.1.0",
-    status: "active",
+    status: "done",
     summary: "Repositório público, documentação viva, CI/CD e este site no ar desde o primeiro commit.",
     deliverables: ["Roadmap e ADRs", "Geometria do campo", "CI + GitHub Pages"],
   },

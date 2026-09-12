@@ -6,7 +6,7 @@ base da apresentação final e do vídeo do projeto.
 
 | Fase | Tema | Versão | Status |
 | --- | --- | --- | --- |
-| 0 | Fundação | v0.1.0 | 🟡 Em andamento |
+| 0 | Fundação | v0.1.0 | ✅ Concluída |
 | 1 | Dados e detecção | v0.2.0 | ⏭️ Próxima |
 | 2 | Rastreamento e times | v0.3.0 | ⚪ Planejada |
 | 3 | Calibração do campo | v0.4.0 | ⚪ Planejada |

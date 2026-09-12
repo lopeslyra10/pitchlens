@@ -19,6 +19,10 @@ linhas e compactação ao longo da partida.
 [Decisões (ADRs)](docs/adr/) ·
 [Diário de bordo](docs/devlog/)
 
+<br />
+
+<img src="docs/assets/fase-00-landing.png" alt="Site do PitchLens com a mesa tática simulada" width="880" />
+
 </div>
 
 > **In English:** PitchLens is a computer vision project that turns football (soccer) match
@@ -92,7 +96,7 @@ flowchart LR
 
 | Fase | Entrega | Versão | Status |
 | --- | --- | --- | --- |
-| 0 | **Fundação:** repositório, documentação, CI/CD e site no ar | v0.1.0 | 🟡 Em andamento |
+| 0 | **Fundação:** repositório, documentação, CI/CD e site no ar | v0.1.0 | ✅ Concluída |
 | 1 | **Dados e detecção:** fine-tuning do RF-DETR, métricas e comparação com YOLO | v0.2.0 | ⏭️ Próxima |
 | 2 | **Rastreamento e times:** ByteTrack, IDs estáveis e separação de times | v0.3.0 | ⚪ Planejada |
 | 3 | **Calibração do campo:** keypoints, homografia por frame e radar 2D | v0.4.0 | ⚪ Planejada |
