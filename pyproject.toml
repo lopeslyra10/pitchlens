@@ -1,0 +1,42 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pitchlens"
+version = "0.1.0"
+description = "Visão computacional para análise tática de futebol: detecção, rastreamento, homografia e leitura de formação."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Augusto Lopes Lyra" }]
+keywords = ["computer-vision", "football", "soccer", "tactics", "homography", "tracking"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering :: Image Recognition",
+]
+dependencies = ["numpy>=1.26"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3", "ruff>=0.8"]
+
+[project.urls]
+Homepage = "https://lopeslyra10.github.io/pitchlens/"
+Repository = "https://github.com/lopeslyra10/pitchlens"
+Changelog = "https://github.com/lopeslyra10/pitchlens/blob/main/CHANGELOG.md"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pitchlens"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "UP", "SIM", "N", "RUF"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
