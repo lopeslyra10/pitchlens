@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+/build/
+/dist/
+
+# Web
+node_modules/
+web/dist/
+*.tsbuildinfo
+
+# Caches locais (pip, npm, modelos) - ver CONTRIBUTING.md
+.cache/
+
+# Dados, pesos e saídas de treino (ver data/README.md)
+data/raw/
+data/interim/
+data/processed/
+/runs/
+/weights/
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.pt
+*.pth
+*.onnx
+*.engine
+
+# Ambiente
+.env
+.env.*
+!.env.example
+
+# Sistema operacional e editores
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
