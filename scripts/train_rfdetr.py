@@ -17,6 +17,7 @@ from datetime import UTC, datetime
 from importlib.metadata import version
 from pathlib import Path
 
+from pitchlens.console import use_utf8_output
 from pitchlens.detection.detector import RFDETR_SIZES
 
 
@@ -35,6 +36,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    use_utf8_output()
     args = parse_args()
 
     import rfdetr

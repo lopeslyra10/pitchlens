@@ -23,6 +23,8 @@ import zipfile
 from datetime import UTC, datetime
 from pathlib import Path
 
+from pitchlens.console import use_utf8_output
+
 WORKSPACE = "roboflow-jvuqo"
 PROJECT = "football-players-detection-3zvbc"
 DATASET_DIR = Path("data/datasets/football-players")
@@ -185,6 +187,7 @@ def download_clips(clip_ids: list[str]) -> None:
 
 
 def main() -> None:
+    use_utf8_output()
     parser = argparse.ArgumentParser(description="Baixa os dados da Fase 1.")
     commands = parser.add_subparsers(dest="command", required=True)
     dataset = commands.add_parser("dataset", help="dataset rotulado do Roboflow (formato YOLO)")
