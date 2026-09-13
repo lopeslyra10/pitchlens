@@ -83,7 +83,7 @@ def _ball_sizes_px(root: Path, class_names: list[str]) -> list[float]:
                 width, height = Image.open(images[0]).size
             except (IndexError, OSError):
                 continue
-            for line in label_file.read_text().splitlines():
+            for line in label_file.read_text(encoding="utf-8").splitlines():
                 parts = line.split()
                 if parts and int(parts[0]) == ball_id:
                     sizes.append(max(float(parts[3]) * width, float(parts[4]) * height))
@@ -98,7 +98,7 @@ def dataset_stats(root: Path, class_names: list[str]) -> dict:
         image_dir, label_dir = root / split / "images", root / split / "labels"
         images[split] = sum(1 for _ in image_dir.glob("*")) if image_dir.exists() else 0
         for label_file in label_dir.glob("*.txt") if label_dir.exists() else []:
-            for line in label_file.read_text().splitlines():
+            for line in label_file.read_text(encoding="utf-8").splitlines():
                 if line.strip():
                     instances[class_names[int(line.split()[0])]] += 1
     ball_sizes = _ball_sizes_px(root, class_names)
