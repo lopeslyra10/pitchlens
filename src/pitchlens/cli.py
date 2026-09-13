@@ -13,6 +13,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from pitchlens import __version__
+from pitchlens.console import use_utf8_output
 
 
 def _detect(args: argparse.Namespace) -> int:
@@ -57,6 +58,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    use_utf8_output()
     args = build_parser().parse_args(argv)
     return args.handler(args)
 

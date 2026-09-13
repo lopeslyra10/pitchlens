@@ -20,6 +20,8 @@ from pathlib import Path
 
 import numpy as np
 
+from pitchlens.console import use_utf8_output
+
 EVAL_THRESHOLD = 0.05  # limiar baixo: o mAP precisa da curva precisão-revocação completa
 WARMUP_IMAGES = 3
 
@@ -95,6 +97,7 @@ def to_markdown(results: list[dict], class_names: list[str]) -> str:
 
 
 def main() -> None:
+    use_utf8_output()
     args = parse_args()
     if not args.rfdetr and not args.yolo:
         raise SystemExit("informe ao menos um modelo: --rfdetr e/ou --yolo")
