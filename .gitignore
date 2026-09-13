@@ -21,7 +21,9 @@ web/dist/
 data/raw/
 data/interim/
 data/processed/
+data/datasets/
 /runs/
+/outputs/
 /weights/
 *.mp4
 *.avi
