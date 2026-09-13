@@ -54,6 +54,14 @@ Exemplos:
 ## Ambiente local
 
 - Python 3.11 ou superior (desenvolvimento em 3.13) e Node 22.12 ou superior.
+- Visão computacional (a partir da Fase 1): o PyTorch com CUDA vem do índice oficial, antes dos
+  extras do projeto. O exemplo usa CUDA 13.0; ajuste para o driver da sua GPU.
+
+  ```bash
+  pip install torch torchvision --index-url https://download.pytorch.org/whl/cu130
+  pip install -e ".[dev,cv,data]" --extra-index-url https://download.pytorch.org/whl/cu130
+  pip install -e ".[bench]"   # só para o baseline YOLO (AGPL-3.0)
+  ```
 - Pesos de modelos e caches de pip, npm, PyTorch e Hugging Face podem ocupar vários GB. Se o
   disco do sistema tiver pouco espaço, aponte-os para a pasta `.cache/` do projeto (ignorada
   pelo Git) antes de instalar dependências:

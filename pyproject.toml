@@ -20,6 +20,18 @@ dependencies = ["numpy>=1.26"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.3", "ruff>=0.8"]
+# Visão computacional. O PyTorch com CUDA vem do índice oficial do PyTorch (ver CONTRIBUTING.md).
+cv = [
+  "torch>=2.6",
+  "torchvision>=0.21",
+  "rfdetr[train]>=1.10,<1.11",
+  "supervision>=0.30",
+  "opencv-python>=4.10",
+  "imageio-ffmpeg>=0.6",
+]
+data = ["roboflow>=1.4", "kaggle>=2.2", "python-dotenv>=1.0"]
+# Baseline de comparação. Ultralytics é AGPL-3.0 e fica restrito a scripts/benchmark (ADR-0003).
+bench = ["ultralytics>=8.4"]
 
 [project.urls]
 Homepage = "https://lopeslyra10.github.io/pitchlens/"
