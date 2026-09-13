@@ -12,8 +12,10 @@ fazem com que cada fase possa ser apresentada a partir do próprio Git.
 
 ## Commits
 
-[Conventional Commits](https://www.conventionalcommits.org/pt-br/v1.0.0/) em português:
-`tipo(escopo): descrição no presente`.
+Formato `tipo: o que foi feito e por quê`, em português, seguindo
+[Conventional Commits](https://www.conventionalcommits.org/pt-br/v1.0.0/). O motivo é a parte
+mais importante: quem lê o histórico deve entender a decisão sem abrir o código. Uma linha
+costuma bastar; o corpo do commit fica para quando o motivo não couber nela.
 
 | Tipo | Uso |
 | --- | --- |
@@ -26,9 +28,14 @@ fazem com que cada fase possa ser apresentada a partir do próprio Git.
 | `ci` | Pipelines de integração e deploy |
 | `chore` | Manutenção e configuração |
 
-Escopos usados: `core`, `data`, `train`, `track`, `calib`, `tactics`, `web`, `api`.
+Quando ajudar a localizar a mudança, o tipo leva um escopo: `core`, `data`, `train`, `track`,
+`calib`, `tactics`, `web` ou `api`.
 
-Exemplo: `feat(core): adiciona geometria do campo e sistema de coordenadas`.
+Exemplos:
+
+- `fix(web): linha defensiva calculada só com os zagueiros, porque os laterais avançados distorciam a altura do bloco`
+- `feat(calib): suaviza a homografia entre frames para o radar não tremer quando a câmera acompanha a jogada`
+- `ci: separa o build do site em outro job para uma falha nos testes Python não bloquear o deploy`
 
 ## Versionamento
 
