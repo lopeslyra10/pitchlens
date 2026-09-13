@@ -121,7 +121,9 @@ def main() -> None:
 
     results = [evaluate(name, detector, dataset) for name, detector in detectors]
     args.out.mkdir(parents=True, exist_ok=True)
-    (args.out / "metricas.json").write_text(json.dumps(results, indent=2, ensure_ascii=False))
+    (args.out / "metricas.json").write_text(
+        json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
     table = to_markdown(results, dataset.classes)
     (args.out / "comparacao.md").write_text(table, encoding="utf-8")
     print(table)

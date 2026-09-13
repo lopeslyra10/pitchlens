@@ -62,7 +62,9 @@ def main() -> None:
         "concluido_em": datetime.now(UTC).isoformat(timespec="seconds"),
     }
     run_dir = args.output / name
-    (run_dir / "treino.json").write_text(json.dumps(record, indent=2, ensure_ascii=False))
+    (run_dir / "treino.json").write_text(
+        json.dumps(record, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
     print(f"treino concluído em {minutes:.1f} min; pesos em {run_dir / 'weights'}")
 
 
