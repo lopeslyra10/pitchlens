@@ -1,0 +1,45 @@
+{
+  "dataset": {
+    "fonte": "Roboflow Universe",
+    "url": "https://universe.roboflow.com/roboflow-jvuqo/football-players-detection-3zvbc/dataset/20",
+    "versao": 20,
+    "formato": "yolov8",
+    "licenca": "CC BY 4.0",
+    "classes": [
+      "ball",
+      "goalkeeper",
+      "player",
+      "referee"
+    ],
+    "baixado_em": "2026-09-17T01:04:07+00:00"
+  },
+  "videos": {
+    "itens": [
+      {
+        "arquivo": "pexels-2657261.mp4",
+        "download": "https://videos.pexels.com/video-files/2657261/2657261-uhd_3840_2160_24fps.mp4",
+        "pagina": "https://www.pexels.com/video/aerial-footage-of-a-game-of-soccer-2657261/",
+        "autor": "Pexels (ver página)",
+        "licenca": "Licença Pexels",
+        "uso": "detecção e campo 2D: vista alta e aberta de um jogo 11 contra 11"
+      },
+      {
+        "arquivo": "pexels-28870860.mp4",
+        "download": "https://videos.pexels.com/video-files/28870860/12500590_1920_1080_30fps.mp4",
+        "pagina": "https://www.pexels.com/video/aerial-view-of-soccer-game-on-green-field-28870860/",
+        "autor": "Benjamin Quezada Arevalo",
+        "licenca": "Licença Pexels",
+        "uso": "campo 2D: drone com vista de cima"
+      },
+      {
+        "arquivo": "u17-nz-can-25.webm",
+        "download": "https://upload.wikimedia.org/wikipedia/commons/f/f9/2018_FIFA_U-17_Women%27s_World_Cup_-_New_Zealand_vs_Canada_-_25.webm",
+        "pagina": "https://commons.wikimedia.org/wiki/File:2018_FIFA_U-17_Women%27s_World_Cup_-_New_Zealand_vs_Canada_-_25.webm",
+        "autor": "NaBUru38 (Wikimedia Commons)",
+        "licenca": "CC BY-SA 4.0",
+        "uso": "detecção com ângulo baixo; derivados precisam manter a CC BY-SA 4.0"
+      }
+    ],
+    "baixado_em": "2026-09-17T01:22:59+00:00"
+  }
+}

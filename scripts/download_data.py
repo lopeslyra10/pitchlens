@@ -1,12 +1,12 @@
-"""Baixa os dados da Fase 1: dataset rotulado (Roboflow) e clipes de vídeo (Kaggle).
+"""Baixa os dados da Fase 1: dataset rotulado (Roboflow) e vídeos de licença livre.
 
-As credenciais ficam no ``.env`` (ver ``.env.example``) e os arquivos baixados ficam fora do
-Git. Versão do dataset e clipes usados são registrados em ``data/sources.json`` para que o
-treino possa ser reproduzido.
+A chave do Roboflow fica no ``.env`` (ver ``.env.example``) e os arquivos baixados ficam fora
+do Git. Versão do dataset, origem, autor e licença de cada vídeo são registrados em
+``data/sources.json``, para que o treino possa ser reproduzido e as licenças respeitadas.
 
 Uso:
     python scripts/download_data.py dataset          # dataset em formato YOLO
-    python scripts/download_data.py clips            # clipes de 30 s da competição DFL
+    python scripts/download_data.py videos           # vídeos de demonstração (ADR-0004)
     python scripts/download_data.py stats            # contagens do dataset baixado
 """
 
@@ -15,11 +15,9 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import shutil
 import statistics
-import subprocess
-import sys
-import zipfile
+import urllib.request
+from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -28,12 +26,57 @@ from pitchlens.console import use_utf8_output
 WORKSPACE = "roboflow-jvuqo"
 PROJECT = "football-players-detection-3zvbc"
 DATASET_DIR = Path("data/datasets/football-players")
-COMPETITION = "dfl-bundesliga-data-shootout"
-CLIPS_DIR = Path("data/raw")
+VIDEOS_DIR = Path("data/raw")
 SOURCES_FILE = Path("data/sources.json")
 SPLITS = ("train", "valid", "test")
-# Clipes da câmera principal usados como referência em projetos públicos de futebol.
-DEFAULT_CLIPS = ["08fd33_0", "0bfacc_0", "121364_0", "2e57b9_0", "573e61_0"]
+USER_AGENT = "PitchLens/0.2 (https://github.com/lopeslyra10/pitchlens)"
+
+
+@dataclass(frozen=True)
+class VideoSource:
+    """Vídeo de demonstração com a origem e a licença que precisam ser respeitadas."""
+
+    arquivo: str
+    download: str
+    pagina: str
+    autor: str
+    licenca: str
+    uso: str
+
+
+# Escolhidos por licença livre e ângulo alto (ADR-0004). Nenhum deles é redistribuído aqui.
+VIDEOS = [
+    VideoSource(
+        arquivo="pexels-2657261.mp4",
+        download="https://videos.pexels.com/video-files/2657261/2657261-uhd_3840_2160_24fps.mp4",
+        pagina="https://www.pexels.com/video/aerial-footage-of-a-game-of-soccer-2657261/",
+        autor="Pexels (ver página)",
+        licenca="Licença Pexels",
+        uso="detecção e campo 2D: vista alta e aberta de um jogo 11 contra 11",
+    ),
+    VideoSource(
+        arquivo="pexels-28870860.mp4",
+        download="https://videos.pexels.com/video-files/28870860/12500590_1920_1080_30fps.mp4",
+        pagina="https://www.pexels.com/video/aerial-view-of-soccer-game-on-green-field-28870860/",
+        autor="Benjamin Quezada Arevalo",
+        licenca="Licença Pexels",
+        uso="campo 2D: drone com vista de cima",
+    ),
+    VideoSource(
+        arquivo="u17-nz-can-25.webm",
+        download=(
+            "https://upload.wikimedia.org/wikipedia/commons/f/f9/"
+            "2018_FIFA_U-17_Women%27s_World_Cup_-_New_Zealand_vs_Canada_-_25.webm"
+        ),
+        pagina=(
+            "https://commons.wikimedia.org/wiki/"
+            "File:2018_FIFA_U-17_Women%27s_World_Cup_-_New_Zealand_vs_Canada_-_25.webm"
+        ),
+        autor="NaBUru38 (Wikimedia Commons)",
+        licenca="CC BY-SA 4.0",
+        uso="detecção com ângulo baixo; derivados precisam manter a CC BY-SA 4.0",
+    ),
+]
 
 
 def load_env() -> None:
@@ -145,45 +188,18 @@ def download_dataset(version: int | None) -> None:
     print(json.dumps(dataset_stats(DATASET_DIR, list(data["names"])), indent=2))
 
 
-def kaggle_cli() -> str:
-    local = Path(sys.executable).parent / ("kaggle.exe" if os.name == "nt" else "kaggle")
-    return shutil.which("kaggle") or str(local)
-
-
-def download_clips(clip_ids: list[str]) -> None:
-    CLIPS_DIR.mkdir(parents=True, exist_ok=True)
-    for clip_id in clip_ids:
-        target = CLIPS_DIR / f"{clip_id}.mp4"
+def download_videos(videos: list[VideoSource]) -> None:
+    VIDEOS_DIR.mkdir(parents=True, exist_ok=True)
+    for video in videos:
+        target = VIDEOS_DIR / video.arquivo
         if target.exists():
             print(f"{target} já existe")
             continue
-        command = [kaggle_cli(), "competitions", "download", "-c", COMPETITION]
-        command += ["-f", f"clips/{clip_id}.mp4", "-p", str(CLIPS_DIR), "-q"]
-        result = subprocess.run(command, capture_output=True, text=True, check=False)
-        if result.returncode != 0:
-            detail = (result.stderr or result.stdout).strip()
-            raise SystemExit(
-                f"falha ao baixar {clip_id}: {detail}\n"
-                "Confira se as regras da competição foram aceitas no Kaggle e se o token está"
-                " configurado (.env ou `kaggle auth login`)."
-            )
-        archive = CLIPS_DIR / f"{clip_id}.mp4.zip"
-        if archive.exists():
-            with zipfile.ZipFile(archive) as bundle:
-                bundle.extractall(CLIPS_DIR)
-            archive.unlink()
-        print(f"{target} baixado")
-
-    update_sources(
-        "clips",
-        {
-            "fonte": f"Kaggle, competição {COMPETITION}",
-            "url": f"https://www.kaggle.com/competitions/{COMPETITION}/data",
-            "ids": clip_ids,
-            "uso": "regras da competição; vídeos não são redistribuídos neste repositório",
-            "baixado_em": now(),
-        },
-    )
+        request = urllib.request.Request(video.download, headers={"User-Agent": USER_AGENT})
+        with urllib.request.urlopen(request) as response:
+            target.write_bytes(response.read())
+        print(f"{target} baixado ({target.stat().st_size / 1e6:.1f} MB)")
+    update_sources("videos", {"itens": [asdict(video) for video in videos], "baixado_em": now()})
 
 
 def main() -> None:
@@ -192,16 +208,15 @@ def main() -> None:
     commands = parser.add_subparsers(dest="command", required=True)
     dataset = commands.add_parser("dataset", help="dataset rotulado do Roboflow (formato YOLO)")
     dataset.add_argument("--version", type=int, default=None, help="padrão: versão mais recente")
-    clips = commands.add_parser("clips", help="clipes de 30 s da competição DFL no Kaggle")
-    clips.add_argument("--ids", nargs="+", default=DEFAULT_CLIPS)
+    commands.add_parser("videos", help="vídeos de demonstração de licença livre")
     commands.add_parser("stats", help="contagens do dataset já baixado")
     args = parser.parse_args()
 
     load_env()
     if args.command == "dataset":
         download_dataset(args.version)
-    elif args.command == "clips":
-        download_clips(args.ids)
+    elif args.command == "videos":
+        download_videos(VIDEOS)
     else:
         import yaml
 
