@@ -10,6 +10,19 @@ fazem com que cada fase possa ser apresentada a partir do próprio Git.
   exemplo) e entra na `main` por pull request com a CI verde.
 - Issues e milestones do GitHub acompanham as tarefas de cada fase.
 
+## Proteção da branch `main`
+
+A `main` é protegida por um ruleset no GitHub. Na prática:
+
+- toda mudança entra por **pull request**; não existe push direto;
+- **histórico linear**: o merge é por squash ou rebase, nunca por merge commit;
+- **force-push e exclusão** da branch são bloqueados;
+- os **três checks da CI** precisam passar, e a branch precisa estar atualizada com a `main`
+  antes do merge;
+- **conversas de revisão** precisam estar resolvidas;
+- mudanças **sem autoria atribuída** a uma conta do GitHub exigem aprovação extra, então o
+  e-mail dos commits deve ser o mesmo da conta que abre o pull request.
+
 ## Commits
 
 Formato `tipo: o que foi feito e por quê`, em português, seguindo
