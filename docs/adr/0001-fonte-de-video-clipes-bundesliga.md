@@ -1,6 +1,6 @@
 # ADR-0001: Clipes públicos da Bundesliga como fonte de vídeo do MVP
 
-- **Status:** aceito
+- **Status:** substituído pelo [ADR-0004](0004-videos-de-licenca-livre.md)
 - **Data:** 2026-09-12
 - **Fase:** 0
 

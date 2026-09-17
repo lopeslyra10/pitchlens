@@ -34,13 +34,14 @@ base da apresentação final e do vídeo do projeto.
 **Objetivo:** detectar jogadores, goleiros, árbitros e bola com um modelo ajustado para futebol.
 
 - Scripts de download e organização dos dados, sem versionar vídeos.
+- Vídeos de licença livre para os testes, com origem e licença registradas (ADR-0004).
 - Fine-tuning do RF-DETR na GPU local (RTX 3060, 12 GB).
 - Baseline YOLO no mesmo dataset e comparação de mAP@50, mAP@50-95 e FPS.
 - Relatório de avaliação com erros típicos: bola pequena, oclusões, jogadores cortados na borda.
 - ADR com a escolha do modelo e a licença dos pesos.
 
-**Pronto quando:** métricas publicadas no devlog e um clipe de 30 s processado com caixas
-desenhadas.
+**Pronto quando:** métricas publicadas no devlog e um vídeo de licença livre processado com
+caixas desenhadas, com a queda de precisão fora do ângulo de transmissão medida.
 **Risco principal:** a bola ocupa poucos pixels; se necessário, inferência em blocos (tiles) ou
 um modelo dedicado à bola.
 
@@ -85,7 +86,7 @@ rotulados manualmente.
 
 - Vídeo e campo 2D sincronizados, com linha do tempo de mudanças de formação.
 - Painel de métricas por janela e por jogador.
-- Partidas de demonstração pré-processadas, publicadas conforme a revisão de licença do ADR-0001.
+- Partidas de demonstração pré-processadas, a partir de vídeos de licença livre ou gravação própria (ADR-0004).
 - Contrato de dados JSON versionado (ADR-0002).
 
 **Pronto quando:** qualquer pessoa consegue abrir o site e explorar uma partida analisada.
