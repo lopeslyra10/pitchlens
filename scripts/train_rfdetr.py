@@ -27,11 +27,24 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--size", choices=list(RFDETR_SIZES), default="medium")
     parser.add_argument("--epochs", type=int, default=60)
     parser.add_argument("--batch-size", default="auto", help='inteiro ou "auto" (sonda a GPU)')
+    parser.add_argument(
+        "--grad-accum",
+        type=int,
+        default=1,
+        help="lotes acumulados por passo; lote pequeno com acúmulo evita falta de memória",
+    )
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--resolution", type=int, default=None, help="padrão do modelo se omitido")
     parser.add_argument("--patience", type=int, default=15, help="épocas sem melhora até parar")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--output", type=Path, default=None)
+    parser.add_argument(
+        "--resume",
+        nargs="?",
+        const="last.ckpt",
+        default=None,
+        help="retoma o treino; sem valor, usa last.ckpt da pasta de saída",
+    )
     return parser.parse_args()
 
 
@@ -51,12 +64,16 @@ def main() -> None:
         "output_dir": str(output),
         "epochs": args.epochs,
         "batch_size": args.batch_size if args.batch_size == "auto" else int(args.batch_size),
+        "grad_accum_steps": args.grad_accum,
         "lr": args.lr,
         "early_stopping": True,
         "early_stopping_patience": args.patience,
     }
     if args.resolution:
         options["resolution"] = args.resolution
+    if args.resume:
+        checkpoint = Path(args.resume)
+        options["resume"] = str(checkpoint if checkpoint.is_absolute() else output / checkpoint)
 
     model = getattr(rfdetr, RFDETR_SIZES[args.size])()
     started = time.perf_counter()
