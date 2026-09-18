@@ -1,0 +1,110 @@
+{
+  "teste (transmissão)": {
+    "frames": 25,
+    "classes": {
+      "ball": {
+        "por_frame": 0.8,
+        "presenca": 0.8,
+        "confianca_media": 0.718
+      },
+      "goalkeeper": {
+        "por_frame": 0.8,
+        "presenca": 0.8,
+        "confianca_media": 0.833
+      },
+      "player": {
+        "por_frame": 20.04,
+        "presenca": 1.0,
+        "confianca_media": 0.871
+      },
+      "referee": {
+        "por_frame": 2.28,
+        "presenca": 1.0,
+        "confianca_media": 0.824
+      }
+    }
+  },
+  "pexels-2657261": {
+    "frames": 306,
+    "classes": {
+      "ball": {
+        "por_frame": 0.39,
+        "presenca": 0.379,
+        "confianca_media": 0.513
+      },
+      "goalkeeper": {
+        "por_frame": 5.31,
+        "presenca": 0.997,
+        "confianca_media": 0.484
+      },
+      "player": {
+        "por_frame": 33.9,
+        "presenca": 1.0,
+        "confianca_media": 0.706
+      },
+      "referee": {
+        "por_frame": 3.35,
+        "presenca": 1.0,
+        "confianca_media": 0.59
+      }
+    },
+    "fps_processamento": 6.9
+  },
+  "pexels-28870860": {
+    "frames": 1782,
+    "classes": {
+      "__background__": {
+        "por_frame": 0.0,
+        "presenca": 0.001,
+        "confianca_media": 0.403
+      },
+      "ball": {
+        "por_frame": 0.06,
+        "presenca": 0.056,
+        "confianca_media": 0.547
+      },
+      "goalkeeper": {
+        "por_frame": 0.04,
+        "presenca": 0.035,
+        "confianca_media": 0.436
+      },
+      "player": {
+        "por_frame": 7.63,
+        "presenca": 0.607,
+        "confianca_media": 0.575
+      },
+      "referee": {
+        "por_frame": 3.54,
+        "presenca": 0.76,
+        "confianca_media": 0.572
+      }
+    },
+    "fps_processamento": 8.2
+  },
+  "u17-nz-can-25": {
+    "frames": 1350,
+    "classes": {
+      "ball": {
+        "por_frame": 0.84,
+        "presenca": 0.814,
+        "confianca_media": 0.59
+      },
+      "goalkeeper": {
+        "por_frame": 1.9,
+        "presenca": 0.779,
+        "confianca_media": 0.463
+      },
+      "player": {
+        "por_frame": 10.42,
+        "presenca": 1.0,
+        "confianca_media": 0.83
+      },
+      "referee": {
+        "por_frame": 0.55,
+        "presenca": 0.416,
+        "confianca_media": 0.506
+      }
+    },
+    "fps_processamento": 9.5
+  }
+}
