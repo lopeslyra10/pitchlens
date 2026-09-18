@@ -7,6 +7,7 @@ em qualquer máquina.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol
 
@@ -23,6 +24,21 @@ RFDETR_SIZES = {
 }
 
 
+def training_resolution(weights: str | Path) -> int | None:
+    """Resolução usada no treino, lida do ``training_config.json`` salvo ao lado dos pesos.
+
+    O checkpoint do RF-DETR não guarda a resolução: carregado sozinho, o modelo volta para a
+    resolução padrão da variante (576 px no Medium). Rodar em resolução menor que a do treino
+    derruba a detecção de objetos pequenos, como a bola.
+    """
+    config_file = Path(weights).parent / "training_config.json"
+    if not config_file.exists():
+        return None
+    config = json.loads(config_file.read_text(encoding="utf-8"))
+    resolution = config.get("resolution") or config.get("model_config", {}).get("resolution")
+    return int(resolution) if resolution else None
+
+
 class Detector(Protocol):
     """Qualquer modelo que receba um frame BGR e devolva detecções do ``supervision``."""
 
@@ -34,12 +50,17 @@ class RFDETRDetector:
 
     O ``from_checkpoint`` do RF-DETR descobre o tamanho do modelo e as classes pelo próprio
     arquivo, então quem usa o detector não precisa saber com qual variante o treino foi feito.
+    A resolução vem do treino (ver ``training_resolution``), a menos que seja informada.
     """
 
-    def __init__(self, weights: str | Path, *, threshold: float = 0.35) -> None:
+    def __init__(
+        self, weights: str | Path, *, threshold: float = 0.35, resolution: int | None = None
+    ) -> None:
         from rfdetr.detr import RFDETR
 
-        self.model = RFDETR.from_checkpoint(str(weights))
+        resolution = resolution or training_resolution(weights)
+        options = {"resolution": resolution} if resolution else {}
+        self.model = RFDETR.from_checkpoint(str(weights), **options)
         self.threshold = threshold
 
     @property
