@@ -74,6 +74,19 @@ A formação não é calculada quadro a quadro. As posições são suavizadas em
 segundos, normalizadas (time sempre atacando para a direita) e comparadas a modelos de formação
 por atribuição ótima, gerando um rótulo com nível de confiança, como `4-3-3 · 82%`.
 
+## Resultados
+
+**Fase 1: detecção.** RF-DETR Medium e YOLO26m treinados na mesma GPU, no mesmo dataset e
+avaliados pelo mesmo código, no split de teste:
+
+| Modelo | mAP@50 | mAP@50-95 | AP50 bola | ms/imagem |
+| --- | --- | --- | --- | --- |
+| **RF-DETR Medium** (escolhido) | **0,889** | 0,585 | **0,646** | 88,9 |
+| YOLO26m | 0,843 | **0,604** | 0,580 | **40,4** |
+
+A bola, com cerca de 6 px, é o ponto fraco dos dois. Detalhes, falhas fora do ângulo de
+transmissão e créditos das imagens no [relatório da Fase 1](reports/fase-1/README.md).
+
 ## Arquitetura
 
 O processamento pesado roda **offline, na GPU local**; o site é **estático** e consome os
@@ -97,8 +110,8 @@ flowchart LR
 | Fase | Entrega | Versão | Status |
 | --- | --- | --- | --- |
 | 0 | **Fundação:** repositório, documentação, CI/CD e site no ar | v0.1.0 | ✅ Concluída |
-| 1 | **Dados e detecção:** fine-tuning do RF-DETR, métricas e comparação com YOLO | v0.2.0 | ⏭️ Próxima |
-| 2 | **Rastreamento e times:** ByteTrack, IDs estáveis e separação de times | v0.3.0 | ⚪ Planejada |
+| 1 | **Dados e detecção:** fine-tuning do RF-DETR, métricas e comparação com YOLO | v0.2.0 | ✅ Concluída |
+| 2 | **Rastreamento e times:** ByteTrack, IDs estáveis e separação de times | v0.3.0 | ⏭️ Próxima |
 | 3 | **Calibração do campo:** keypoints, homografia por frame e radar 2D | v0.4.0 | ⚪ Planejada |
 | 4 | **Leitura tática:** formação com confiança, linhas, compactação e mapas de calor | v0.5.0 | ⚪ Planejada |
 | 5 | **Mesa tática web:** vídeo e campo 2D sincronizados (MVP) | v1.0.0 | ⚪ Planejada |

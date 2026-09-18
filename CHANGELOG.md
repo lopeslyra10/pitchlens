@@ -8,6 +8,34 @@ versão.
 
 ## [Não lançado]
 
+## [0.2.0] - 2026-09-18
+
+Fase 1: Dados e detecção.
+
+### Adicionado
+
+- Detector RF-DETR Medium ajustado para futebol (bola, goleiro, jogador e árbitro), escolhido
+  no ADR-0005 depois da comparação com um baseline YOLO26m.
+- Comando `pitchlens detect`, que gera o vídeo anotado de um clipe.
+- Leitura e escrita de vídeo em H.264 compatível com navegador.
+- Scripts de download de dados com origem e licença registradas em `data/sources.json`.
+- Scripts de treino do RF-DETR (com `--resume` e `--grad-accum`) e do YOLO, isolado em
+  `scripts/benchmark` por ser AGPL-3.0.
+- Avaliador comum e medição do detector fora do ângulo de transmissão, com relatórios em
+  `reports/fase-1`.
+- ADR-0004 (vídeos de licença livre) e ADR-0005 (escolha do detector).
+
+### Alterado
+
+- ADR-0001 substituído pelo ADR-0004: os clipes da Bundesliga não são usados.
+- Dependências de visão computacional movidas para extras opcionais (`cv`, `data`, `bench`).
+
+### Corrigido
+
+- Leitura e escrita de texto em UTF-8 explícito, necessária no Windows com caminhos acentuados.
+- Saída de console em UTF-8 nos scripts e na CLI.
+- RF-DETR carregado na resolução do treino, e não na padrão de 576 px.
+
 ## [0.1.0] - 2026-09-12
 
 Fase 0: Fundação.
@@ -24,5 +52,6 @@ Fase 0: Fundação.
 - Deploy contínuo no GitHub Pages.
 - Diário de bordo da Fase 0.
 
-[Não lançado]: https://github.com/lopeslyra10/pitchlens/compare/v0.1.0...HEAD
+[Não lançado]: https://github.com/lopeslyra10/pitchlens/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/lopeslyra10/pitchlens/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/lopeslyra10/pitchlens/releases/tag/v0.1.0
