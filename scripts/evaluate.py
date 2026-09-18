@@ -32,6 +32,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--split", default="test")
     parser.add_argument("--rfdetr", type=Path, help="checkpoint do RF-DETR")
     parser.add_argument("--yolo", type=Path, help="pesos do YOLO (scripts/benchmark)")
+    parser.add_argument(
+        "--yolo-imgsz", type=int, default=1024, help="mesma resolução usada no treino do YOLO"
+    )
     parser.add_argument("--out", type=Path, default=Path("reports/fase-1"))
     return parser.parse_args()
 
@@ -120,7 +123,12 @@ def main() -> None:
     if args.yolo:
         from benchmark.yolo import YOLODetector
 
-        detectors.append((f"YOLO ({args.yolo.parent.parent.name})", YOLODetector(args.yolo)))
+        detectors.append(
+            (
+                f"YOLO ({args.yolo.parent.parent.name})",
+                YOLODetector(args.yolo, imgsz=args.yolo_imgsz),
+            )
+        )
 
     results = [evaluate(name, detector, dataset) for name, detector in detectors]
     args.out.mkdir(parents=True, exist_ok=True)
