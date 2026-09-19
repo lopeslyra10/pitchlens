@@ -87,6 +87,19 @@ avaliados pelo mesmo código, no split de teste:
 A bola, com cerca de 6 px, é o ponto fraco dos dois. Detalhes, falhas fora do ângulo de
 transmissão e créditos das imagens no [relatório da Fase 1](reports/fase-1/README.md).
 
+**Fase 2: rastreamento e times.** Cada jogador ganha um número e a cor do próprio time,
+aprendida do vídeo sem rótulos. Num clipe de 45 s com câmera na mão:
+
+<img src="docs/assets/fase-02-rastreamento.gif" alt="Jogadoras rastreadas com número, cor do time e rastro" width="480" />
+
+| Versão | Identificadores | Duração mediana do rastro | Trocas de time em 111 recortes |
+| --- | --- | --- | --- |
+| Primeira | 329 | 0,5 s | 9 |
+| **Final** (BoT-SORT, ajuste robusto) | **78** | **3,8 s** | **0** |
+
+Detalhes e créditos (vídeo de NaBUru38, CC BY-SA 4.0) no
+[relatório da Fase 2](reports/fase-2/README.md).
+
 ## Arquitetura
 
 O processamento pesado roda **offline, na GPU local**; o site é **estático** e consome os
@@ -111,8 +124,8 @@ flowchart LR
 | --- | --- | --- | --- |
 | 0 | **Fundação:** repositório, documentação, CI/CD e site no ar | v0.1.0 | ✅ Concluída |
 | 1 | **Dados e detecção:** fine-tuning do RF-DETR, métricas e comparação com YOLO | v0.2.0 | ✅ Concluída |
-| 2 | **Rastreamento e times:** ByteTrack, IDs estáveis e separação de times | v0.3.0 | ⏭️ Próxima |
-| 3 | **Calibração do campo:** keypoints, homografia por frame e radar 2D | v0.4.0 | ⚪ Planejada |
+| 2 | **Rastreamento e times:** ByteTrack, IDs estáveis e separação de times | v0.3.0 | ✅ Concluída |
+| 3 | **Calibração do campo:** keypoints, homografia por frame e radar 2D | v0.4.0 | ⏭️ Próxima |
 | 4 | **Leitura tática:** formação com confiança, linhas, compactação e mapas de calor | v0.5.0 | ⚪ Planejada |
 | 5 | **Mesa tática web:** vídeo e campo 2D sincronizados (MVP) | v1.0.0 | ⚪ Planejada |
 | 6 | **Processamento sob demanda:** API, Docker e demo de upload | v1.1.0 | ⚪ Planejada |
@@ -145,6 +158,14 @@ python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
 ruff check . && pytest
+```
+
+**Visão computacional** (GPU NVIDIA; instalação completa no
+[CONTRIBUTING.md](CONTRIBUTING.md)):
+
+```bash
+pitchlens detect VIDEO --weights PESOS   # vídeo com as detecções
+pitchlens track VIDEO --weights PESOS    # vídeo com números, times e rastros
 ```
 
 **Site** (Node 22.12+):

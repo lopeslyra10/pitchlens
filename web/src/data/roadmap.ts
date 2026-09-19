@@ -30,7 +30,7 @@ export const PHASES: readonly Phase[] = [
     id: 2,
     title: "Rastreamento e times",
     version: "v0.3.0",
-    status: "active",
+    status: "done",
     summary: "Identificadores estáveis com ByteTrack e separação automática de times por aparência.",
     deliverables: ["IDs estáveis", "Classificador de times", "Vídeo anotado"],
   },

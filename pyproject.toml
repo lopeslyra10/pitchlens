@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pitchlens"
-version = "0.2.0"
+version = "0.3.0"
 description = "Visão computacional para análise tática de futebol: detecção, rastreamento, homografia e leitura de formação."
 readme = "README.md"
 requires-python = ">=3.11"
