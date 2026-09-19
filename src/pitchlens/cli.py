@@ -1,12 +1,14 @@
 """Linha de comando do PitchLens.
 
-Exemplo:
-    pitchlens detect data/raw/08fd33_0.mp4 --weights runs/rfdetr-medium/checkpoint_best_total.pth
+Exemplos (``PESOS`` = runs/rfdetr-medium/checkpoint_best_total.pth):
+    pitchlens detect data/raw/u17-nz-can-25.webm --weights PESOS
+    pitchlens track data/raw/u17-nz-can-25.webm --weights PESOS
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 import time
 from collections.abc import Sequence
@@ -37,6 +39,19 @@ def _detect(args: argparse.Namespace) -> int:
     return 0
 
 
+def _track(args: argparse.Namespace) -> int:
+    from pitchlens.detection.detector import RFDETRDetector
+    from pitchlens.tracking.pipeline import track_video
+
+    output = args.out or Path("outputs") / f"{args.video.stem}-rastreamento.mp4"
+    detector = RFDETRDetector(args.weights, threshold=args.threshold)
+    summary = track_video(detector, args.video, output)
+    stats_file = output.with_suffix(".json")
+    stats_file.write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(f"{summary['frames']} frames, {summary['ids_unicos']} identificadores -> {output}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="pitchlens",
@@ -54,6 +69,15 @@ def build_parser() -> argparse.ArgumentParser:
     detect.add_argument("--max-seconds", type=float, default=None, help="processa só o início")
     detect.add_argument("--out", type=Path, default=None, help="vídeo anotado de saída")
     detect.set_defaults(handler=_detect)
+
+    track = commands.add_parser(
+        "track", help="rastreia os jogadores, separa os times e gera o vídeo com os IDs"
+    )
+    track.add_argument("video", type=Path, help="vídeo de entrada")
+    track.add_argument("--weights", type=Path, required=True, help="checkpoint do RF-DETR")
+    track.add_argument("--threshold", type=float, default=0.35, help="confiança mínima")
+    track.add_argument("--out", type=Path, default=None, help="vídeo anotado de saída")
+    track.set_defaults(handler=_track)
     return parser
 
 
