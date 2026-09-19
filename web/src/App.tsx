@@ -1,9 +1,11 @@
 import { Features } from "./components/Features";
 import { Logo } from "./components/Logo";
 import { Pipeline } from "./components/Pipeline";
+import { Results } from "./components/Results";
 import { Roadmap } from "./components/Roadmap";
 import { TacticalBoard } from "./components/TacticalBoard";
 import { ADR_URL, AUTHOR, DEVLOG_URL, REPO_URL, ROADMAP_URL } from "./data/project";
+import { RESULTS } from "./data/results";
 import { PHASES, currentVersion, statusHeadline } from "./data/roadmap";
 
 interface SectionHeadingProps {
@@ -35,6 +37,7 @@ export default function App() {
           </a>
           <nav className="nav" aria-label="Seções">
             <a href="#como-funciona">Como funciona</a>
+            <a href="#resultados">Resultados</a>
             <a href="#diferenciais">Diferenciais</a>
             <a href="#roadmap">Roadmap</a>
             <a className="nav-cta" href={REPO_URL}>
@@ -89,6 +92,17 @@ export default function App() {
               text="Cada etapa tem entrada e saída bem definidas e é construída em uma fase do roadmap."
             />
             <Pipeline />
+          </div>
+        </section>
+
+        <section id="resultados" className="section">
+          <div className="container">
+            <SectionHeading
+              kicker="Resultados"
+              title="O que já funciona, em vídeos reais"
+              text="Cada fase publica aqui o resultado do pipeline em vídeos de licença livre, com as métricas medidas no projeto."
+            />
+            <Results results={RESULTS} />
           </div>
         </section>
 
