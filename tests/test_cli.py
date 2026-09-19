@@ -27,6 +27,7 @@ def test_detect_requires_model_weights():
 def test_track_command_defaults():
     args = build_parser().parse_args(["track", "clip.mp4", "--weights", "best.pth"])
 
-    assert args.threshold == 0.35
+    assert args.threshold == 0.1
+    assert args.tracker == "botsort"
     assert args.out is None
     assert args.handler.__name__ == "_track"
