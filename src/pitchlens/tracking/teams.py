@@ -22,6 +22,15 @@ GRASS_MARGIN = 1.08
 MIN_JERSEY_PIXELS = 12
 # Recortes com menos uniforme que isso são quase só gramado e dariam uma cor pouco confiável.
 MIN_JERSEY_FRACTION = 0.15
+# Uma cor mais distante dos dois times do que isso (em múltiplos do raio de cada time) não é de
+# nenhum deles: arbitragem, reservas e pessoas fora do campo que o detector marcou como jogador.
+OUTLIER_RADIUS_FACTOR = 3.5
+# O ajuste robusto descarta as cores mais distantes de cada time antes de recalcular o centro,
+# para que arbitragem e sombras não puxem a cor do time nem inflem o raio.
+TRIM_PERCENTILE = 75
+TRIM_ROUNDS = 2
+# Raio mínimo de cada time: a cor de um uniforme sempre varia um pouco com luz e sombra.
+MIN_TEAM_RADIUS = 0.05
 
 
 def torso_crop(frame: np.ndarray, box: Sequence[float]) -> np.ndarray:
@@ -81,24 +90,55 @@ def kmeans_two(points: np.ndarray, iterations: int = 25) -> tuple[np.ndarray, np
 
 
 class TeamClassifier:
-    """Aprende as duas cores de uniforme e classifica cada jogador em um dos times."""
+    """Aprende as duas cores de uniforme e classifica cada jogador em um dos times.
+
+    O ajuste é robusto: depois do k-means, as cores mais distantes de cada time são descartadas
+    e o centro é recalculado. O raio de cada time é a distância mediana até o centro, e cores
+    fora do raio ampliado dos dois times ficam sem time.
+    """
 
     def __init__(self) -> None:
         self.centers: np.ndarray | None = None
+        self.radii: np.ndarray | None = None
 
     def fit(self, colors: np.ndarray) -> TeamClassifier:
-        self.centers, _ = kmeans_two(colors)
+        colors = np.asarray(colors, dtype=np.float64)
+        centers, labels = kmeans_two(colors)
+        for _ in range(TRIM_ROUNDS):
+            distances = np.linalg.norm(colors - centers[labels], axis=1)
+            trimmed = []
+            for k in (0, 1):
+                group = labels == k
+                if not group.any():
+                    trimmed.append(centers[k])
+                    continue
+                keep = group & (distances <= np.percentile(distances[group], TRIM_PERCENTILE))
+                trimmed.append(colors[keep].mean(axis=0))
+            centers = np.stack(trimmed)
+            labels = np.linalg.norm(colors[:, None, :] - centers[None, :, :], axis=2).argmin(1)
+
         # O time A é o de uniforme mais claro, para as cores serem estáveis entre vídeos.
-        if self.centers[0].sum() < self.centers[1].sum():
-            self.centers = self.centers[::-1]
+        if centers[0].sum() < centers[1].sum():
+            centers, labels = centers[::-1], 1 - labels
+        distances = np.linalg.norm(colors - centers[labels], axis=1)
+        self.centers = centers
+        self.radii = np.array(
+            [np.median(distances[labels == k]) if np.any(labels == k) else 0.0 for k in (0, 1)]
+        )
         return self
 
-    def predict(self, colors: np.ndarray) -> np.ndarray:
-        if self.centers is None:
+    def predict(self, colors: np.ndarray, *, reject_outliers: bool = True) -> np.ndarray:
+        """Time de cada cor; com ``reject_outliers``, ``NO_TEAM`` para cores de fora."""
+        if self.centers is None or self.radii is None:
             raise RuntimeError("chame fit antes de predict")
         colors = np.asarray(colors, dtype=np.float64).reshape(-1, 3)
         distances = np.linalg.norm(colors[:, None, :] - self.centers[None, :, :], axis=2)
-        return distances.argmin(axis=1)
+        teams = distances.argmin(axis=1)
+        if reject_outliers:
+            limit = np.maximum(self.radii, MIN_TEAM_RADIUS) * OUTLIER_RADIUS_FACTOR
+            outside = np.all(distances > limit[None, :], axis=1)
+            teams = np.where(outside, NO_TEAM, teams)
+        return teams
 
     def team_colors_hex(self) -> list[str]:
         """Cor aprendida de cada time, em hexadecimal, para desenhar o vídeo."""
