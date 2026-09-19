@@ -33,6 +33,8 @@ data/datasets/
 *.pth
 *.onnx
 *.engine
+# Exceção: clipes curtos e comprimidos exibidos no site, com licença que permite publicar.
+!web/public/resultados/*.mp4
 
 # Ambiente
 .env
