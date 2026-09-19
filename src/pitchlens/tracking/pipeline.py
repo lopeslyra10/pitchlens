@@ -8,6 +8,9 @@ O vídeo é percorrido duas vezes, mas o detector roda uma só:
    desenhar o resultado.
 
 Calibrar os times antes de rastrear evita que as primeiras cores vistas decidam tudo.
+
+O rastreador vem do pacote ``trackers`` (Apache 2.0). O BoT-SORT é o padrão porque compensa
+o movimento da câmera; o ByteTrack fica disponível para comparação.
 """
 
 from __future__ import annotations
@@ -39,6 +42,23 @@ CALIBRATION_STRIDE = 5
 MIN_CALIBRATION_SAMPLES = 20
 LOST_TRACK_SECONDS = 2.0
 TRACE_SECONDS = 1.5
+TRACKERS = ("botsort", "bytetrack")
+# O detector roda com limiar baixo para o rastreador aproveitar detecções fracas. A calibração
+# dos times e a bola usam limiares próprios, mais altos, para não aprender ou desenhar ruído.
+CALIBRATION_MIN_CONFIDENCE = 0.5
+BALL_MIN_CONFIDENCE = 0.3
+
+
+def make_tracker(name: str, fps: float):
+    """Cria o rastreador pelo nome, com o fps do vídeo e 2 s de tolerância para reencontrar."""
+    import trackers
+
+    options = {"frame_rate": fps, "lost_track_buffer": round(fps * LOST_TRACK_SECONDS)}
+    if name == "botsort":
+        return trackers.BoTSORTTracker(**options)
+    if name == "bytetrack":
+        return trackers.ByteTrackTracker(**options)
+    raise ValueError(f"rastreador desconhecido: {name} (opções: {', '.join(TRACKERS)})")
 
 
 def collect(detector: Detector, video: Path) -> tuple[list[sv.Detections], np.ndarray]:
@@ -52,10 +72,21 @@ def collect(detector: Detector, video: Path) -> tuple[list[sv.Detections], np.nd
         if index % CALIBRATION_STRIDE:
             continue
         names = class_names_of(frame_detections)
-        for box, name in zip(frame_detections.xyxy, names, strict=True):
-            if name == "player" and (color := jersey_color(torso_crop(frame, box))) is not None:
+        confident = frame_detections.confidence >= CALIBRATION_MIN_CONFIDENCE
+        for box, name, keep in zip(frame_detections.xyxy, names, confident, strict=True):
+            if name != "player" or not keep:
+                continue
+            if (color := jersey_color(torso_crop(frame, box))) is not None:
                 colors.append(color)
     return detections, np.array(colors)
+
+
+def best_ball(balls: sv.Detections) -> sv.Detections:
+    """Só existe uma bola: fica a detecção mais confiável, se passar do limiar."""
+    if len(balls) == 0:
+        return balls
+    best = int(np.argmax(balls.confidence))
+    return balls[[best]] if balls.confidence[best] >= BALL_MIN_CONFIDENCE else balls[[]]
 
 
 def bottom_centers(detections: sv.Detections) -> np.ndarray:
@@ -91,10 +122,10 @@ def assign_groups(
     return teams, groups
 
 
-def track_video(detector: Detector, video: Path, output: Path) -> dict:
+def track_video(
+    detector: Detector, video: Path, output: Path, *, tracker_name: str = "botsort"
+) -> dict:
     """Gera o vídeo anotado com times, identificadores e rastros e devolve os indicadores."""
-    import supervision as sv
-
     from pitchlens.video import VideoWriter, iter_frames, probe
 
     info = probe(video)
@@ -106,9 +137,7 @@ def track_video(detector: Detector, video: Path, output: Path) -> dict:
         )
 
     classifier = TeamClassifier().fit(colors)
-    tracker = sv.ByteTrack(
-        frame_rate=info.fps, lost_track_buffer=round(info.fps * LOST_TRACK_SECONDS)
-    )
+    tracker = make_tracker(tracker_name, info.fps)
     voter = TeamVoter()
     stats = TrackingStats(info.fps)
     annotator = TrackAnnotator(
@@ -119,14 +148,16 @@ def track_video(detector: Detector, video: Path, output: Path) -> dict:
     with VideoWriter(output, fps=info.fps, size=(width, height)) as writer:
         for frame, frame_detections in zip(iter_frames(video), detections, strict=False):
             names = np.array(class_names_of(frame_detections))
-            ball = frame_detections[names == "ball"]
-            tracked = tracker.update_with_detections(frame_detections[names != "ball"])
+            ball = best_ball(frame_detections[names == "ball"])
+            tracked = tracker.update(frame_detections[names != "ball"], frame=frame)
+            tracked = tracked[tracked.tracker_id >= 0]
             teams, groups = assign_groups(frame, tracked, classifier, voter)
             stats.update(tracked.tracker_id, teams)
             scene = annotator.annotate(frame, tracked, groups, ball)
             writer.write(scene[:height, :width])
 
     summary = stats.summary()
+    summary["rastreador"] = tracker_name
     summary["cores_dos_times"] = classifier.team_colors_hex()
     summary["amostras_de_uniforme"] = len(colors)
     summary["fps_processamento"] = round(stats.frames / (time.perf_counter() - started), 1)

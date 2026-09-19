@@ -43,9 +43,9 @@ def _track(args: argparse.Namespace) -> int:
     from pitchlens.detection.detector import RFDETRDetector
     from pitchlens.tracking.pipeline import track_video
 
-    output = args.out or Path("outputs") / f"{args.video.stem}-rastreamento.mp4"
+    output = args.out or Path("outputs") / f"{args.video.stem}-{args.tracker}.mp4"
     detector = RFDETRDetector(args.weights, threshold=args.threshold)
-    summary = track_video(detector, args.video, output)
+    summary = track_video(detector, args.video, output, tracker_name=args.tracker)
     stats_file = output.with_suffix(".json")
     stats_file.write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"{summary['frames']} frames, {summary['ids_unicos']} identificadores -> {output}")
@@ -75,7 +75,13 @@ def build_parser() -> argparse.ArgumentParser:
     )
     track.add_argument("video", type=Path, help="vídeo de entrada")
     track.add_argument("--weights", type=Path, required=True, help="checkpoint do RF-DETR")
-    track.add_argument("--threshold", type=float, default=0.35, help="confiança mínima")
+    track.add_argument(
+        "--threshold",
+        type=float,
+        default=0.1,
+        help="confiança mínima; baixa de propósito, o rastreador usa as detecções fracas",
+    )
+    track.add_argument("--tracker", choices=["botsort", "bytetrack"], default="botsort")
     track.add_argument("--out", type=Path, default=None, help="vídeo anotado de saída")
     track.set_defaults(handler=_track)
     return parser

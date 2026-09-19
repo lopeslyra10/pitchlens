@@ -30,3 +30,18 @@ def test_annotator_draws_teams_ids_and_ball_on_a_copy():
 
     assert annotated.any()
     assert not frame.any()
+
+
+def test_only_the_most_confident_ball_is_kept():
+    sv = pytest.importorskip("supervision")
+    from pitchlens.tracking.pipeline import best_ball
+
+    balls = sv.Detections(
+        xyxy=np.array([[0, 0, 5, 5], [10, 10, 15, 15], [20, 20, 25, 25]], dtype=float),
+        confidence=np.array([0.2, 0.6, 0.4]),
+    )
+
+    kept = best_ball(balls)
+
+    assert len(kept) == 1 and kept.confidence[0] == 0.6
+    assert len(best_ball(balls[[0]])) == 0

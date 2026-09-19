@@ -26,6 +26,7 @@ cv = [
   "torchvision>=0.21",
   "rfdetr[train]>=1.10,<1.11",
   "supervision>=0.30",
+  "trackers>=2.6,<3",
   "opencv-python>=4.10",
   "imageio-ffmpeg>=0.6",
 ]
