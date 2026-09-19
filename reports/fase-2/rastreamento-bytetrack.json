@@ -1,0 +1,20 @@
+{
+  "frames": 1350,
+  "ids_unicos": 86,
+  "visiveis_por_frame": 10.8,
+  "ids_por_visivel": 7.98,
+  "duracao_mediana_s": 3.5,
+  "rastros_curtos_pct": 0.233,
+  "por_time_por_frame": {
+    "-1": 1.0,
+    "0": 5.7,
+    "1": 4.1
+  },
+  "rastreador": "bytetrack",
+  "cores_dos_times": [
+    "#D2D7E6",
+    "#A82F46"
+  ],
+  "amostras_de_uniforme": 2459,
+  "fps_processamento": 9.3
+}
