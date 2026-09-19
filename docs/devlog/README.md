@@ -8,6 +8,7 @@ base da apresentação final (Fase 7).
 | --- | --- | --- | --- |
 | 0 | [Fundação](fase-00-fundacao.md) | v0.1.0 | 2026-09-12 |
 | 1 | [Dados e detecção](fase-01-deteccao.md) | v0.2.0 | 2026-09-18 |
+| 2 | [Rastreamento e times](fase-02-rastreamento.md) | v0.3.0 | 2026-09-18 |
 
 ## Modelo de entrada
 
