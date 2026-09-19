@@ -8,6 +8,26 @@ versão.
 
 ## [Não lançado]
 
+## [0.3.0] - 2026-09-18
+
+Fase 2: Rastreamento e times.
+
+### Adicionado
+
+- Comando `pitchlens track`, que gera o vídeo com número, time e rastro de cada jogador.
+- Rastreamento com o BoT-SORT do pacote `trackers`, com compensação do movimento da câmera
+  (`--tracker bytetrack` disponível para comparação).
+- Separação de times pela cor do tronco, sem rótulos, com ajuste robusto, rejeição de cores
+  distantes e voto por identificador; goleiros pelo time mais próximo.
+- Indicadores de estabilidade do rastreamento e folha de conferência dos times
+  (`scripts/team_sheet.py`), com relatório em `reports/fase-2`.
+- Seção "Resultados" no site, com imagem e vídeo reais de cada fase e créditos das licenças.
+- ADR-0006 (rastreador e método de times).
+
+### Corrigido
+
+- Clipe do site versionado por exceção no `.gitignore`, que excluía todo `.mp4`.
+
 ## [0.2.0] - 2026-09-18
 
 Fase 1: Dados e detecção.
@@ -52,6 +72,7 @@ Fase 0: Fundação.
 - Deploy contínuo no GitHub Pages.
 - Diário de bordo da Fase 0.
 
-[Não lançado]: https://github.com/lopeslyra10/pitchlens/compare/v0.2.0...HEAD
+[Não lançado]: https://github.com/lopeslyra10/pitchlens/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/lopeslyra10/pitchlens/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/lopeslyra10/pitchlens/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/lopeslyra10/pitchlens/releases/tag/v0.1.0

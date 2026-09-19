@@ -1,7 +1,7 @@
 {
   "name": "pitchlens-web",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Site e mesa tática do PitchLens.",
   "type": "module",
   "scripts": {

@@ -8,8 +8,8 @@ base da apresentação final e do vídeo do projeto.
 | --- | --- | --- | --- |
 | 0 | Fundação | v0.1.0 | ✅ Concluída |
 | 1 | Dados e detecção | v0.2.0 | ✅ Concluída |
-| 2 | Rastreamento e times | v0.3.0 | ⏭️ Próxima |
-| 3 | Calibração do campo | v0.4.0 | ⚪ Planejada |
+| 2 | Rastreamento e times | v0.3.0 | ✅ Concluída |
+| 3 | Calibração do campo | v0.4.0 | ⏭️ Próxima |
 | 4 | Leitura tática | v0.5.0 | ⚪ Planejada |
 | 5 | Mesa tática web (MVP) | v1.0.0 | ⚪ Planejada |
 | 6 | Processamento sob demanda | v1.1.0 | ⚪ Planejada |
