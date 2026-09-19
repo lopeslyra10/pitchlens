@@ -73,6 +73,19 @@ def test_classifier_puts_the_lighter_kit_in_team_a():
     assert classifier.team_colors_hex()[0] == "#F2F2F2"
 
 
+def test_classifier_rejects_colors_far_from_both_kits():
+    rng = np.random.default_rng(1)
+    white = np.array([0.92, 0.92, 0.92]) + rng.normal(0, 0.02, (40, 3))
+    red = np.array([0.8, 0.15, 0.15]) + rng.normal(0, 0.02, (40, 3))
+    classifier = TeamClassifier().fit(np.vstack([white, red]))
+
+    referee_black = [0.08, 0.08, 0.1]
+
+    assert classifier.predict([referee_black]).tolist() == [NO_TEAM]
+    assert classifier.predict([referee_black], reject_outliers=False).tolist() in ([0], [1])
+    assert classifier.predict([[0.9, 0.93, 0.9]]).tolist() == [TEAM_A]
+
+
 def test_classifier_requires_fit():
     with pytest.raises(RuntimeError):
         TeamClassifier().predict([[0.5, 0.5, 0.5]])
