@@ -55,7 +55,8 @@ def main() -> None:
         "output_dir": str(args.output),
         "class_names": schema.class_names,
         "keypoint_oks_sigmas": schema.keypoint_oks_sigmas,
-        "keypoint_flip_pairs": keypoint_flip_pairs(),
+        # O RF-DETR espera a lista achatada: [a0, b0, a1, b1, ...].
+        "keypoint_flip_pairs": [index for pair in keypoint_flip_pairs() for index in pair],
         "epochs": args.epochs,
         "batch_size": args.batch_size,
         "grad_accum_steps": args.grad_accum,
