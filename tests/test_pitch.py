@@ -97,3 +97,18 @@ def test_keypoints_array_follows_the_dataset_order():
 
     assert array.shape == (32, 2)
     np.testing.assert_allclose(array[14], [52.5, 34.0 - 9.15], atol=1e-6)
+
+
+def test_flip_pairs_mirror_left_and_right_points():
+    from pitchlens.pitch import KEYPOINT_ORDER, keypoint_flip_pairs
+
+    pairs = keypoint_flip_pairs()
+    keypoints = FIFA_PITCH.keypoints()
+
+    # 14 pares (13 de cada lado mais o círculo central); 4 pontos do meio do campo não têm par.
+    assert len(pairs) == 14
+    assert len(pairs) * 2 + 4 == len(KEYPOINT_ORDER)
+    assert all(first < second for first, second in pairs)
+    for first, second in pairs:
+        left, right = keypoints[KEYPOINT_ORDER[first]], keypoints[KEYPOINT_ORDER[second]]
+        assert FIFA_PITCH.reflect_across_halfway(left) == pytest.approx(right)

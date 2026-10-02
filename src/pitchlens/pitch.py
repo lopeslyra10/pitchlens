@@ -176,3 +176,22 @@ A ordem correta foi confirmada medindo o erro de reprojeção das anotações: 0
 numérica contra 2,96 m na ordem dos nomes. As coordenadas vêm de ``PitchSpec``, então o campo
 do projeto continua sendo a única fonte das medidas.
 """
+
+
+def keypoint_flip_pairs() -> list[tuple[int, int]]:
+    """Pares de pontos que trocam de lugar quando a imagem é espelhada na horizontal.
+
+    O espelhamento é uma das transformações usadas para aumentar os dados de treino. Sem
+    informar os pares, o ponto da esquerda continuaria rotulado como esquerda depois do
+    espelhamento, ensinando o modelo errado.
+    """
+    positions = {name: index for index, name in enumerate(KEYPOINT_ORDER)}
+    pairs = []
+    for name, index in positions.items():
+        mirrored = (
+            name.replace("left", "right", 1) if "left" in name else name.replace("right", "left", 1)
+        )
+        other = positions.get(mirrored)
+        if other is not None and index < other:
+            pairs.append((index, other))
+    return pairs
