@@ -19,6 +19,7 @@ from importlib.metadata import version
 from pathlib import Path
 
 from pitchlens.console import use_utf8_output
+from pitchlens.pitch import keypoint_flip_pairs
 
 
 def parse_args() -> argparse.Namespace:
@@ -54,6 +55,7 @@ def main() -> None:
         "output_dir": str(args.output),
         "class_names": schema.class_names,
         "keypoint_oks_sigmas": schema.keypoint_oks_sigmas,
+        "keypoint_flip_pairs": keypoint_flip_pairs(),
         "epochs": args.epochs,
         "batch_size": args.batch_size,
         "grad_accum_steps": args.grad_accum,
