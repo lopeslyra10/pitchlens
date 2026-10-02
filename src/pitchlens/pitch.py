@@ -10,6 +10,9 @@ compartilham o mesmo referencial:
 
 O eixo ``y`` cresce para baixo, como nas imagens, o que simplifica a leitura das
 homografias e o desenho da mesa tática.
+
+``KEYPOINT_ORDER`` lista os 32 pontos na ordem em que o dataset de keypoints do gramado os
+numera, para converter o que o modelo prevê em posições no campo.
 """
 
 from __future__ import annotations
@@ -107,6 +110,8 @@ class PitchSpec:
                     f"{side}_goal_area_top": (goal_area_x, goal_top),
                     f"{side}_goal_area_bottom": (goal_area_x, goal_bottom),
                     f"{side}_goal_area_goal_bottom": (goal_x, goal_bottom),
+                    f"{side}_penalty_area_inner_top": (penalty_x, goal_top),
+                    f"{side}_penalty_area_inner_bottom": (penalty_x, goal_bottom),
                     f"{side}_penalty_spot": (goal_x + direction * self.penalty_spot_distance, cy),
                 }
             )
@@ -128,3 +133,46 @@ class PitchSpec:
 
 FIFA_PITCH = PitchSpec()
 """Campo padrão de 105 x 68 m, usado quando nenhuma dimensão é informada."""
+
+
+KEYPOINT_ORDER: tuple[str, ...] = (
+    "corner_top_left",  # 1
+    "left_penalty_area_goal_top",  # 2
+    "left_goal_area_goal_top",  # 3
+    "left_goal_area_goal_bottom",  # 4
+    "left_penalty_area_goal_bottom",  # 5
+    "corner_bottom_left",  # 6
+    "left_goal_area_top",  # 7
+    "left_goal_area_bottom",  # 8
+    "left_penalty_spot",  # 9
+    "left_penalty_area_top",  # 10
+    "left_penalty_area_inner_top",  # 11
+    "left_penalty_area_inner_bottom",  # 12
+    "left_penalty_area_bottom",  # 13
+    "halfway_top",  # 14
+    "center_circle_top",  # 15
+    "center_circle_bottom",  # 16
+    "halfway_bottom",  # 17
+    "right_penalty_area_top",  # 18
+    "right_penalty_area_inner_top",  # 19
+    "right_penalty_area_inner_bottom",  # 20
+    "right_penalty_area_bottom",  # 21
+    "right_penalty_spot",  # 22
+    "right_goal_area_top",  # 23
+    "right_goal_area_bottom",  # 24
+    "corner_top_right",  # 25
+    "right_penalty_area_goal_top",  # 26
+    "right_goal_area_goal_top",  # 27
+    "right_goal_area_goal_bottom",  # 28
+    "right_penalty_area_goal_bottom",  # 29
+    "corner_bottom_right",  # 30
+    "center_circle_left",  # 31
+    "center_circle_right",  # 32
+)
+"""Nomes dos 32 pontos do gramado, na ordem em que o dataset os grava (1 a 32).
+
+O arquivo COCO lista os nomes numa ordem diferente da ordem dos dados (com 14 e 19 no fim).
+A ordem correta foi confirmada medindo o erro de reprojeção das anotações: 0,35 m na ordem
+numérica contra 2,96 m na ordem dos nomes. As coordenadas vêm de ``PitchSpec``, então o campo
+do projeto continua sendo a única fonte das medidas.
+"""

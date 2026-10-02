@@ -41,5 +41,14 @@
       }
     ],
     "baixado_em": "2026-09-17T01:22:59+00:00"
+  },
+  "keypoints": {
+    "fonte": "Roboflow Universe",
+    "url": "https://universe.roboflow.com/roboflow-jvuqo/football-field-detection-f07vi/dataset/18",
+    "versao": 18,
+    "formato": "coco (keypoints)",
+    "licenca": "CC BY 4.0",
+    "pontos": 32,
+    "baixado_em": "2026-10-02T22:59:54+00:00"
   }
 }

@@ -5,7 +5,8 @@ do Git. Versão do dataset, origem, autor e licença de cada vídeo são registr
 ``data/sources.json``, para que o treino possa ser reproduzido e as licenças respeitadas.
 
 Uso:
-    python scripts/download_data.py dataset          # dataset em formato YOLO
+    python scripts/download_data.py dataset          # jogadores e bola, em formato YOLO
+    python scripts/download_data.py keypoints        # pontos do gramado, em formato COCO
     python scripts/download_data.py videos           # vídeos de demonstração (ADR-0004)
     python scripts/download_data.py stats            # contagens do dataset baixado
 """
@@ -26,6 +27,8 @@ from pitchlens.console import use_utf8_output
 WORKSPACE = "roboflow-jvuqo"
 PROJECT = "football-players-detection-3zvbc"
 DATASET_DIR = Path("data/datasets/football-players")
+KEYPOINTS_PROJECT = "football-field-detection-f07vi"
+KEYPOINTS_DIR = Path("data/datasets/football-field")
 VIDEOS_DIR = Path("data/raw")
 SOURCES_FILE = Path("data/sources.json")
 SPLITS = ("train", "valid", "test")
@@ -154,17 +157,60 @@ def dataset_stats(root: Path, class_names: list[str]) -> dict:
     }
 
 
-def download_dataset(version: int | None) -> None:
-    import yaml
+def roboflow_project(slug: str):
     from roboflow import Roboflow
 
     api_key = os.environ.get("ROBOFLOW_API_KEY")
     if not api_key:
         raise SystemExit("defina ROBOFLOW_API_KEY no .env (veja .env.example)")
+    return Roboflow(api_key=api_key).workspace(WORKSPACE).project(slug)
 
-    project = Roboflow(api_key=api_key).workspace(WORKSPACE).project(PROJECT)
-    if version is None:
-        version = max(int(str(v.version).rsplit("/", 1)[-1]) for v in project.versions())
+
+def latest_version(project) -> int:
+    return max(int(str(v.version).rsplit("/", 1)[-1]) for v in project.versions())
+
+
+def coco_images(split_dir: Path) -> int:
+    annotations = split_dir / "_annotations.coco.json"
+    if not annotations.exists():
+        return 0
+    return len(json.loads(annotations.read_text(encoding="utf-8"))["images"])
+
+
+def download_keypoints(version: int | None) -> None:
+    """Pontos do gramado em formato COCO, que é o formato de keypoints do RF-DETR."""
+    project = roboflow_project(KEYPOINTS_PROJECT)
+    version = version or latest_version(project)
+    project.version(version).download("coco", location=str(KEYPOINTS_DIR), overwrite=True)
+
+    annotations = json.loads(
+        (KEYPOINTS_DIR / "train" / "_annotations.coco.json").read_text(encoding="utf-8")
+    )
+    names = next(
+        (c.get("keypoints", []) for c in annotations.get("categories", []) if c.get("keypoints")),
+        [],
+    )
+    update_sources(
+        "keypoints",
+        {
+            "fonte": "Roboflow Universe",
+            "url": f"https://universe.roboflow.com/{WORKSPACE}/{KEYPOINTS_PROJECT}/dataset/{version}",
+            "versao": version,
+            "formato": "coco (keypoints)",
+            "licenca": "CC BY 4.0",
+            "pontos": len(names),
+            "baixado_em": now(),
+        },
+    )
+    splits = {split: coco_images(KEYPOINTS_DIR / split) for split in SPLITS}
+    print(f"pontos do gramado v{version} em {KEYPOINTS_DIR}: {len(names)} pontos, {splits}")
+
+
+def download_dataset(version: int | None) -> None:
+    import yaml
+
+    project = roboflow_project(PROJECT)
+    version = version or latest_version(project)
     project.version(version).download("yolov8", location=str(DATASET_DIR), overwrite=True)
 
     data_yaml = DATASET_DIR / "data.yaml"
@@ -206,8 +252,10 @@ def main() -> None:
     use_utf8_output()
     parser = argparse.ArgumentParser(description="Baixa os dados da Fase 1.")
     commands = parser.add_subparsers(dest="command", required=True)
-    dataset = commands.add_parser("dataset", help="dataset rotulado do Roboflow (formato YOLO)")
+    dataset = commands.add_parser("dataset", help="jogadores e bola, do Roboflow (formato YOLO)")
     dataset.add_argument("--version", type=int, default=None, help="padrão: versão mais recente")
+    keypoints = commands.add_parser("keypoints", help="pontos do gramado, do Roboflow (COCO)")
+    keypoints.add_argument("--version", type=int, default=None, help="padrão: versão mais recente")
     commands.add_parser("videos", help="vídeos de demonstração de licença livre")
     commands.add_parser("stats", help="contagens do dataset já baixado")
     args = parser.parse_args()
@@ -215,6 +263,8 @@ def main() -> None:
     load_env()
     if args.command == "dataset":
         download_dataset(args.version)
+    elif args.command == "keypoints":
+        download_keypoints(args.version)
     elif args.command == "videos":
         download_videos(VIDEOS)
     else:

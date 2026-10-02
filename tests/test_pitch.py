@@ -12,7 +12,7 @@ def test_default_pitch_follows_fifa_recommendation():
 def test_keypoints_are_unique_and_inside_the_pitch():
     keypoints = FIFA_PITCH.keypoints()
 
-    assert len(keypoints) == 29
+    assert len(keypoints) == 33
     assert len(set(keypoints.values())) == len(keypoints)
     assert all(FIFA_PITCH.contains(x, y) for x, y in keypoints.values())
 
@@ -73,3 +73,27 @@ def test_keypoints_array_rejects_unknown_names():
 def test_inconsistent_dimensions_are_rejected(overrides):
     with pytest.raises(ValueError):
         PitchSpec(**overrides)
+
+
+def test_keypoint_order_matches_the_dataset_layout():
+    from pitchlens.pitch import KEYPOINT_ORDER
+
+    keypoints = FIFA_PITCH.keypoints()
+
+    assert len(KEYPOINT_ORDER) == 32
+    assert len(set(KEYPOINT_ORDER)) == 32
+    assert all(name in keypoints for name in KEYPOINT_ORDER)
+    # Os pontos seguem a numeração 1 a 32 do dataset: 1 é o canto superior esquerdo,
+    # 14 é o meio-campo na linha de cima e 32 é a borda direita do círculo central.
+    assert keypoints[KEYPOINT_ORDER[0]] == (0.0, 0.0)
+    assert keypoints[KEYPOINT_ORDER[13]] == (52.5, 0.0)
+    assert keypoints[KEYPOINT_ORDER[31]] == pytest.approx((52.5 + 9.15, 34.0))
+
+
+def test_keypoints_array_follows_the_dataset_order():
+    from pitchlens.pitch import KEYPOINT_ORDER
+
+    array = FIFA_PITCH.keypoints_array(KEYPOINT_ORDER)
+
+    assert array.shape == (32, 2)
+    np.testing.assert_allclose(array[14], [52.5, 34.0 - 9.15], atol=1e-6)
