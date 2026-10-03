@@ -50,5 +50,44 @@
     "licenca": "CC BY 4.0",
     "pontos": 32,
     "baixado_em": "2026-10-02T22:59:54+00:00"
+  },
+  "videos_proprios": {
+    "fonte": "gravação do próprio autor na arquibancada, Neo Química Arena",
+    "partida": "Corinthians 1 x 3 Fluminense, 2026-09-20",
+    "licenca": "material próprio do autor, usado no projeto com a sua autorização",
+    "observacao": "o áudio é descartado no corte e a arquibancada aparece ao fundo; as peças publicadas no site devem enquadrar o gramado",
+    "itens": [
+      {
+        "arquivo": "arena-01-circulo.mp4",
+        "original": "20260920_170839.mp4",
+        "corte_s": [
+          6.5,
+          16.5
+        ],
+        "resolucao": "1920x1080 (original 3840x2160)",
+        "uso": "calibração: círculo central, linha do meio e as duas laterais no quadro"
+      },
+      {
+        "arquivo": "arena-02-area.mp4",
+        "original": "20260920_162805.mp4",
+        "corte_s": [
+          1.9,
+          11.9
+        ],
+        "resolucao": "1920x1080 (original 3840x2160)",
+        "uso": "calibração e rastreamento: grande área e gol visíveis, câmera mais parada"
+      },
+      {
+        "arquivo": "arena-03-jogada.mp4",
+        "original": "20260920_161208.mp4",
+        "corte_s": [
+          2.7,
+          14.7
+        ],
+        "resolucao": "1920x1080 (original 3840x2160)",
+        "uso": "leitura tática: 12 s de jogada com os dois times espalhados"
+      }
+    ],
+    "escolhidos_em": "2026-10-03"
   }
 }
