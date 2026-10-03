@@ -1,0 +1,29 @@
+{
+  "modelo": "runs\\keypoints\\checkpoint_best_total.pth",
+  "split": "test",
+  "pontos": 32,
+  "erro_dos_pontos_px": {
+    "mediano": 35.1,
+    "p95": 153.2
+  },
+  "pontos_anotados_encontrados_pct": 0.689,
+  "calibracao": [
+    {
+      "fonte": "modelo",
+      "imagens": 28,
+      "calibradas": 0
+    },
+    {
+      "fonte": "anotação",
+      "imagens": 28,
+      "calibradas": 28,
+      "cobertura_pct": 1.0,
+      "erro_mediano_m": 0.3,
+      "erro_p95_m": 0.48,
+      "erro_maximo_m": 0.58,
+      "pontos_por_imagem": 15.2
+    }
+  ],
+  "observacao": "Primeiro treino (runs/keypoints, 60 épocas, lr 2e-5 nos dois grupos, sem EMA): a métrica do treino (OKS mAP 0,885) não se traduziu em calibração — nenhuma das 28 imagens do teste gerou homografia utilizável. A linha 'anotação' mostra que o problema é o modelo, não a geometria.",
+  "treino": "runs/keypoints (primeiro treino; ver docs/devlog)"
+}
