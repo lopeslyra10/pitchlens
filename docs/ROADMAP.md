@@ -57,16 +57,22 @@ um modelo dedicado à bola.
 **Pronto quando:** trocas de ID por minuto e acurácia da separação de times medidas em frames
 rotulados manualmente.
 
-## Fase 3: Calibração do campo (v0.4.0)
+## Fase 3: Calibração do campo (v0.4.0) — concluída
 
 **Objetivo:** converter pixels da câmera em metros no campo.
 
-- Modelo de pontos do gramado (os pontos de referência já estão em `src/pitchlens/pitch.py`).
-- Homografia por frame com RANSAC, suavização temporal e descarte de frames ruins.
-- Calibração plugável: por pontos detectados (câmera móvel) ou estática (câmera fixa).
-- Radar 2D sincronizado com o vídeo.
+- Modelo de pontos do gramado (RF-DETR keypoints) nos 32 pontos de `src/pitchlens/pitch.py`.
+- Homografia por frame com RANSAC, suavização pela posição dos pontos, detecção de corte de
+  câmera e descarte de frames ruins.
+- Checagem geométrica do ajuste e máscara do campo pelo pé do jogador.
+- Radar 2D sincronizado com o vídeo (`pitchlens track --pitch-weights`).
 
 **Pronto quando:** erro de reprojeção medido em metros em frames anotados.
+**Resultado:** 27 de 28 imagens do split de teste calibradas, erro mediano de 0,51 m contra
+0,30 m da anotação ([relatório](../reports/fase-3/README.md)).
+
+A calibração plugável para câmera fixa foi adiada: a gravação própria continua na Fase 4, junto
+com a anotação de imagens do próprio domínio.
 
 ## Fase 4: Leitura tática (v0.5.0)
 

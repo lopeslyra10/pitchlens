@@ -100,6 +100,20 @@ aprendida do vídeo sem rótulos. Num clipe de 45 s com câmera na mão:
 Detalhes e créditos (vídeo de NaBUru38, CC BY-SA 4.0) no
 [relatório da Fase 2](reports/fase-2/README.md).
 
+**Fase 3: calibração do campo.** Um modelo encontra os 32 pontos do gramado em cada frame e a
+homografia leva a imagem para metros. As linhas desenhadas caem sobre as linhas de verdade:
+
+<img src="docs/assets/fase-03-calibracao.jpg" alt="Campo projetado sobre quatro imagens do split de teste" width="480" />
+
+| Pontos usados | Imagens calibradas (28) | Erro mediano | p95 |
+| --- | --- | --- | --- |
+| **Modelo** | 27 | **0,51 m** | 0,67 m |
+| Anotação (teto da geometria) | 28 | 0,30 m | 0,48 m |
+
+Nos vídeos próprios gravados da arquibancada, o corte com a grande área no quadro calibra 92%
+dos frames com 0,37 m. O que não funciona e por quê está no
+[relatório da Fase 3](reports/fase-3/README.md).
+
 ## Arquitetura
 
 O processamento pesado roda **offline, na GPU local**; o site é **estático** e consome os
@@ -125,8 +139,8 @@ flowchart LR
 | 0 | **Fundação:** repositório, documentação, CI/CD e site no ar | v0.1.0 | ✅ Concluída |
 | 1 | **Dados e detecção:** fine-tuning do RF-DETR, métricas e comparação com YOLO | v0.2.0 | ✅ Concluída |
 | 2 | **Rastreamento e times:** ByteTrack, IDs estáveis e separação de times | v0.3.0 | ✅ Concluída |
-| 3 | **Calibração do campo:** keypoints, homografia por frame e radar 2D | v0.4.0 | ⏭️ Próxima |
-| 4 | **Leitura tática:** formação com confiança, linhas, compactação e mapas de calor | v0.5.0 | ⚪ Planejada |
+| 3 | **Calibração do campo:** keypoints, homografia por frame e radar 2D | v0.4.0 | ✅ Concluída |
+| 4 | **Leitura tática:** formação com confiança, linhas, compactação e mapas de calor | v0.5.0 | ⏭️ Próxima |
 | 5 | **Mesa tática web:** vídeo e campo 2D sincronizados (MVP) | v1.0.0 | ⚪ Planejada |
 | 6 | **Processamento sob demanda:** API, Docker e demo de upload | v1.1.0 | ⚪ Planejada |
 | 7 | **Apresentação final e vídeo** | v1.2.0 | ⚪ Planejada |
