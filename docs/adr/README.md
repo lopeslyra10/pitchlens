@@ -13,6 +13,7 @@ Um ADR aceito não é reescrito: se a decisão mudar, um novo ADR substitui o an
 | [0004](0004-videos-de-licenca-livre.md) | Vídeos de licença livre e gravação própria como fonte de vídeo | Aceito |
 | [0005](0005-detector-rf-detr-medium.md) | RF-DETR Medium em 1024 px como detector do pipeline | Aceito |
 | [0006](0006-rastreamento-botsort-e-times-por-cor.md) | BoT-SORT para rastrear e cor do uniforme para separar os times | Aceito |
+| [0007](0007-calibracao-do-campo.md) | Calibração do campo por pontos do gramado, com homografia robusta e medida em metros | Aceito |
 
 ## Modelo
 

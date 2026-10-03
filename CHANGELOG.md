@@ -8,6 +8,31 @@ versão.
 
 ## [Não lançado]
 
+## [0.4.0] - 2026-10-03
+
+Fase 3: Calibração do campo.
+
+### Adicionado
+
+- Modelo de pontos do gramado (RF-DETR keypoints) ajustado nos 32 pontos do dataset
+  `football-field-detection`, com `scripts/train_keypoints.py`.
+- Homografia por frame em NumPy (DLT normalizado e RANSAC), com suavização pela posição dos
+  pontos projetados, detecção de corte de câmera e descarte de frames ruins.
+- Checagem geométrica do ajuste: o campo projetado tem de ser um quadrilátero convexo.
+- Comando `pitchlens calibrate`, que desenha o campo sobre o vídeo e grava os indicadores.
+- Radar 2D e linhas do campo no `pitchlens track`, via `--pitch-weights`.
+- Máscara do campo pelo pé do jogador, aplicada antes do rastreador.
+- `scripts/evaluate_keypoints.py`: erro dos pontos em pixels e erro de reprojeção em metros,
+  com a anotação como teto de comparação; relatório em `reports/fase-3`.
+- Três cortes da gravação própria na Neo Química Arena, registrados em `data/sources.json`.
+- `scripts/acompanhar-treino.ps1`, para acompanhar treinos que rodam soltos da sessão.
+- ADR-0007 (calibração do campo).
+
+### Corrigido
+
+- Treino dos pontos do gramado com os learning rates e a média móvel padrão do RF-DETR: o
+  ajuste anterior (2e-5) deixava o modelo subtreinado e sem calibrar nenhuma imagem de teste.
+
 ## [0.3.0] - 2026-09-18
 
 Fase 2: Rastreamento e times.
@@ -72,7 +97,8 @@ Fase 0: Fundação.
 - Deploy contínuo no GitHub Pages.
 - Diário de bordo da Fase 0.
 
-[Não lançado]: https://github.com/lopeslyra10/pitchlens/compare/v0.3.0...HEAD
+[Não lançado]: https://github.com/lopeslyra10/pitchlens/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/lopeslyra10/pitchlens/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/lopeslyra10/pitchlens/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/lopeslyra10/pitchlens/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/lopeslyra10/pitchlens/releases/tag/v0.1.0

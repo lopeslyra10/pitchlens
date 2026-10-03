@@ -76,4 +76,27 @@ export const RESULTS: readonly PhaseResult[] = [
     },
     reportUrl: `${REPORTS}/fase-2/README.md`,
   },
+  {
+    phase: 3,
+    title: "Calibração do campo",
+    summary:
+      "Um modelo acha os 32 pontos do gramado e a homografia leva a imagem para metros. O radar mostra cada jogador na posição real no campo.",
+    media: {
+      kind: "video",
+      src: "resultados/fase-03-calibracao.mp4",
+      poster: "resultados/fase-03-calibracao.jpg",
+      alt: "Jogo na Neo Química Arena com as linhas do campo projetadas e um radar 2D no canto mostrando os jogadores vistos de cima.",
+    },
+    metrics: [
+      { label: "Imagens calibradas no teste", value: "27 de 28" },
+      { label: "Erro de reprojeção", value: "0,51 m" },
+      { label: "Mesmo cálculo com anotação", value: "0,30 m" },
+    ],
+    credit: {
+      text: "Gravação do autor na Neo Química Arena (Corinthians x Fluminense, 20/09/2026)",
+      href: "https://github.com/lopeslyra10/pitchlens/blob/main/data/sources.json",
+      license: "Material próprio",
+    },
+    reportUrl: `${REPORTS}/fase-3/README.md`,
+  },
 ];
