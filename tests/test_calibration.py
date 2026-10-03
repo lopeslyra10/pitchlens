@@ -266,3 +266,34 @@ def test_stats_are_empty_before_the_first_frame():
 
 def _frame(homography, status, points):
     return FrameCalibration(homography, status, points)
+
+
+def test_convex_projection_accepts_a_real_camera(keypoints):
+    from pitchlens.calibration.homography import convex_projection
+
+    homography = fit_homography(keypoints, FIFA_PITCH.keypoints_array(KEYPOINT_ORDER))
+
+    assert convex_projection(homography)
+
+
+def test_convex_projection_rejects_an_impossible_field():
+    from pitchlens.calibration.homography import Homography, convex_projection
+
+    # Troca duas colunas da matriz: o campo projetado vira um laço, e não um retângulo.
+    twisted = np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.004, -0.004, 1.0]])
+    folded = np.array([[1.0, 0.5, 0.0], [1.0, -0.5, 0.0], [0.02, 0.0, 1.0]])
+
+    assert convex_projection(Homography(np.linalg.inv(twisted), 0.2, 20, 18))
+    assert not convex_projection(Homography(folded, 0.2, 20, 18))
+
+
+def test_a_fit_that_draws_an_impossible_field_is_discarded(keypoints):
+    """Poucos pontos amontoados passam pelo erro em metros, mas não pela geometria."""
+    confidences = np.zeros(len(KEYPOINT_ORDER))
+    confidences[[13, 14, 15, 16, 30, 31]] = 1.0  # só o miolo do campo
+    crowded = keypoints.copy()
+    crowded[[30, 31]] += [0.0, 60.0]  # dois deles previstos fora do lugar
+
+    calibration = PitchCalibrator(FRAME_SIZE).update(crowded, confidences)
+
+    assert calibration.status == SEM_CAMPO
