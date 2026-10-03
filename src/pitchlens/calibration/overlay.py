@@ -82,6 +82,28 @@ def project_lines(
     return projected
 
 
+def pitch_to_radar(
+    points_m: np.ndarray,
+    radar_size: tuple[int, int],
+    *,
+    pitch: PitchSpec = FIFA_PITCH,
+    padding: int = 10,
+) -> np.ndarray:
+    """Posições em metros levadas para os pixels do radar: o campo visto de cima.
+
+    A escala é a mesma nos dois eixos e o campo fica centrado no painel. Esticar o desenho
+    para preencher o painel deformaria as distâncias, que são justamente o que a homografia
+    foi estimada para medir.
+    """
+    width, height = radar_size
+    usable_width, usable_height = width - 2 * padding, height - 2 * padding
+    if usable_width <= 0 or usable_height <= 0:
+        raise ValueError("o radar é pequeno demais para a margem pedida")
+    scale = min(usable_width / pitch.length, usable_height / pitch.width)
+    offset = np.array([(width - pitch.length * scale) / 2, (height - pitch.width * scale) / 2])
+    return np.asarray(points_m, dtype=np.float64).reshape(-1, 2) * scale + offset
+
+
 def radar_positions(
     homography: Homography,
     points: np.ndarray,
@@ -90,15 +112,9 @@ def radar_positions(
     pitch: PitchSpec = FIFA_PITCH,
     padding: int = 10,
 ) -> np.ndarray:
-    """Pontos da imagem levados para as coordenadas de um radar de ``radar_size`` pixels.
+    """Pontos da imagem levados para as coordenadas do radar.
 
-    O radar é o campo visto de cima: as posições em metros viram pixels de um retângulo com a
-    proporção do campo. Pontos que a homografia não resolve saem como ``NaN``.
+    Pontos que a homografia não resolve saem como ``NaN``.
     """
-    width, height = radar_size
-    usable_width, usable_height = width - 2 * padding, height - 2 * padding
-    if usable_width <= 0 or usable_height <= 0:
-        raise ValueError("o radar é pequeno demais para a margem pedida")
     metres = homography.to_pitch(points)
-    scale = np.array([usable_width / pitch.length, usable_height / pitch.width])
-    return metres * scale + padding
+    return pitch_to_radar(metres, radar_size, pitch=pitch, padding=padding)

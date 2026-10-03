@@ -45,7 +45,14 @@ def _track(args: argparse.Namespace) -> int:
 
     output = args.out or Path("outputs") / f"{args.video.stem}-{args.tracker}.mp4"
     detector = RFDETRDetector(args.weights, threshold=args.threshold)
-    summary = track_video(detector, args.video, output, tracker_name=args.tracker)
+    pitch_model = None
+    if args.pitch_weights:
+        from pitchlens.calibration.detector import PitchKeypointDetector
+
+        pitch_model = PitchKeypointDetector(args.pitch_weights)
+    summary = track_video(
+        detector, args.video, output, tracker_name=args.tracker, pitch_model=pitch_model
+    )
     stats_file = output.with_suffix(".json")
     stats_file.write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"{summary['frames']} frames, {summary['ids_unicos']} identificadores -> {output}")
@@ -105,6 +112,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="confiança mínima; baixa de propósito, o rastreador usa as detecções fracas",
     )
     track.add_argument("--tracker", choices=["botsort", "bytetrack"], default="botsort")
+    track.add_argument(
+        "--pitch-weights",
+        type=Path,
+        default=None,
+        help="checkpoint do modelo de pontos do gramado; liga as linhas do campo e o radar 2D",
+    )
     track.add_argument("--out", type=Path, default=None, help="vídeo anotado de saída")
     track.set_defaults(handler=_track)
 

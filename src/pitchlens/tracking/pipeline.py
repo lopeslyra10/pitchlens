@@ -22,7 +22,13 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from pitchlens.detection.annotate import class_names_of
-from pitchlens.tracking.annotate import REFEREE_GROUP, UNKNOWN_GROUP, TrackAnnotator
+from pitchlens.detection.classes import OBJECT_CLASSES
+from pitchlens.tracking.annotate import (
+    REFEREE_GROUP,
+    UNKNOWN_COLOR,
+    UNKNOWN_GROUP,
+    TrackAnnotator,
+)
 from pitchlens.tracking.stats import TrackingStats
 from pitchlens.tracking.teams import (
     NO_TEAM,
@@ -36,6 +42,9 @@ from pitchlens.tracking.teams import (
 if TYPE_CHECKING:
     import supervision as sv
 
+    from pitchlens.calibration.homography import FrameCalibration
+    from pitchlens.calibration.pipeline import KeypointModel
+    from pitchlens.calibration.view import FieldView
     from pitchlens.detection.detector import Detector
 
 CALIBRATION_STRIDE = 5
@@ -122,10 +131,40 @@ def assign_groups(
     return teams, groups
 
 
+def only_on_pitch(people: sv.Detections, calibration: FrameCalibration) -> sv.Detections:
+    """Descarta quem está fora do gramado; sem calibração confiável, mantém todo mundo.
+
+    Filtrar antes do rastreador é de propósito: quem está no banco nem chega a ganhar um
+    identificador, em vez de ganhar um e ser escondido no desenho.
+    """
+    from pitchlens.calibration.mask import on_pitch
+
+    if calibration.homography is None or len(people) == 0:
+        return people
+    return people[on_pitch(calibration.homography, people.xyxy)]
+
+
+def _field_view(team_colors: list[str], frame_size: tuple[int, int]) -> FieldView:
+    """Monta a vista do campo com as mesmas cores usadas no desenho dos jogadores."""
+    from pitchlens.calibration.view import FieldView
+
+    colors = [*team_colors, OBJECT_CLASSES["referee"].color, UNKNOWN_COLOR]
+    return FieldView(colors, frame_size)
+
+
 def track_video(
-    detector: Detector, video: Path, output: Path, *, tracker_name: str = "botsort"
+    detector: Detector,
+    video: Path,
+    output: Path,
+    *,
+    tracker_name: str = "botsort",
+    pitch_model: KeypointModel | None = None,
 ) -> dict:
-    """Gera o vídeo anotado com times, identificadores e rastros e devolve os indicadores."""
+    """Gera o vídeo anotado com times, identificadores e rastros e devolve os indicadores.
+
+    Com ``pitch_model``, cada frame também é calibrado: as linhas do campo são desenhadas,
+    quem está fora do gramado deixa de ser rastreado e o radar 2D aparece no canto.
+    """
     from pitchlens.video import VideoWriter, iter_frames, probe
 
     info = probe(video)
@@ -143,17 +182,27 @@ def track_video(
     annotator = TrackAnnotator(
         classifier.team_colors_hex(), trace_length=round(info.fps * TRACE_SECONDS)
     )
+    field = _field_view(classifier.team_colors_hex(), info.size) if pitch_model else None
 
     width, height = info.width - info.width % 2, info.height - info.height % 2
     with VideoWriter(output, fps=info.fps, size=(width, height)) as writer:
         for frame, frame_detections in zip(iter_frames(video), detections, strict=False):
             names = np.array(class_names_of(frame_detections))
             ball = best_ball(frame_detections[names == "ball"])
-            tracked = tracker.update(frame_detections[names != "ball"], frame=frame)
+            people = frame_detections[names != "ball"]
+
+            calibration = None
+            if field is not None and pitch_model is not None:
+                calibration = field.update(*pitch_model.predict(frame))
+                people = only_on_pitch(people, calibration)
+
+            tracked = tracker.update(people, frame=frame)
             tracked = tracked[tracked.tracker_id >= 0]
             teams, groups = assign_groups(frame, tracked, classifier, voter)
             stats.update(tracked.tracker_id, teams)
             scene = annotator.annotate(frame, tracked, groups, ball)
+            if field is not None and calibration is not None:
+                scene = field.draw(scene, calibration, bottom_centers(tracked), groups)
             writer.write(scene[:height, :width])
 
     summary = stats.summary()
@@ -161,4 +210,6 @@ def track_video(
     summary["cores_dos_times"] = classifier.team_colors_hex()
     summary["amostras_de_uniforme"] = len(colors)
     summary["fps_processamento"] = round(stats.frames / (time.perf_counter() - started), 1)
+    if field is not None:
+        summary["calibracao"] = field.stats.summary()
     return summary
