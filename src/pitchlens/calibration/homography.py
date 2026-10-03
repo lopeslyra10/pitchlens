@@ -63,11 +63,14 @@ SEM_CAMPO = "sem campo"
 _EPS = 1e-9
 
 
-def transform_points(matrix: np.ndarray, points: Sequence[Sequence[float]]) -> np.ndarray:
-    """Aplica uma homografia a pontos ``(N, 2)``.
+def transform_points_with_scale(
+    matrix: np.ndarray, points: Sequence[Sequence[float]]
+) -> tuple[np.ndarray, np.ndarray]:
+    """Aplica uma homografia e devolve também o divisor de cada ponto.
 
-    Devolve ``NaN`` onde a transformação não tem resultado finito: são os pontos que caem na
-    linha do horizonte, onde o plano do campo é visto de lado.
+    O divisor diz de que lado do horizonte o ponto está: ele troca de sinal quando a linha
+    passa para trás da câmera, e é zero exatamente sobre o horizonte, onde o ponto não tem
+    posição na imagem (e sai como ``NaN``).
     """
     array = np.asarray(points, dtype=np.float64).reshape(-1, 2)
     homogeneous = np.hstack([array, np.ones((len(array), 1))])
@@ -76,7 +79,12 @@ def transform_points(matrix: np.ndarray, points: Sequence[Sequence[float]]) -> n
     finite = np.abs(scale) > _EPS
     result = np.full((len(array), 2), np.nan)
     result[finite] = projected[finite, :2] / scale[finite, None]
-    return result
+    return result, scale
+
+
+def transform_points(matrix: np.ndarray, points: Sequence[Sequence[float]]) -> np.ndarray:
+    """Aplica uma homografia a pontos ``(N, 2)``, com ``NaN`` para os pontos no horizonte."""
+    return transform_points_with_scale(matrix, points)[0]
 
 
 def reprojection_errors_m(
@@ -158,6 +166,12 @@ class Homography:
     def to_image(self, points: Sequence[Sequence[float]]) -> np.ndarray:
         """Leva pontos do campo (metros) para a imagem (pixels), para desenhar por cima."""
         return transform_points(np.linalg.inv(self.matrix), points)
+
+    def to_image_with_scale(
+        self, points: Sequence[Sequence[float]]
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Como ``to_image``, mas devolve também o divisor, que diz o lado do horizonte."""
+        return transform_points_with_scale(np.linalg.inv(self.matrix), points)
 
 
 def fit_homography(

@@ -31,3 +31,17 @@ def test_track_command_defaults():
     assert args.tracker == "botsort"
     assert args.out is None
     assert args.handler.__name__ == "_track"
+
+
+def test_calibrate_command_defaults():
+    args = build_parser().parse_args(["calibrate", "clip.mp4", "--weights", "campo.pth"])
+
+    assert args.threshold == 0.3
+    assert args.min_confidence == 0.5
+    assert args.max_seconds is None
+    assert args.handler.__name__ == "_calibrate"
+
+
+def test_calibrate_requires_model_weights():
+    with pytest.raises(SystemExit):
+        build_parser().parse_args(["calibrate", "clip.mp4"])

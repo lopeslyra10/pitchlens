@@ -117,6 +117,55 @@ class PitchSpec:
             )
         return points
 
+    def lines(self, circle_samples: int = 64) -> dict[str, np.ndarray]:
+        """Linhas do campo em metros, como sequências de pontos para desenhar.
+
+        São as mesmas linhas que a câmera vê no gramado. Projetadas pela homografia, elas
+        caem sobre as linhas reais quando a calibração está certa — é a forma mais direta de
+        conferir o resultado a olho, e também o desenho de fundo do radar.
+        """
+        length, width = self.length, self.width
+        cx, cy = self.center
+        penalty_top = cy - self.penalty_area_width / 2
+        penalty_bottom = cy + self.penalty_area_width / 2
+        goal_top = cy - self.goal_area_width / 2
+        goal_bottom = cy + self.goal_area_width / 2
+
+        angles = np.linspace(0.0, 2 * np.pi, circle_samples + 1)
+        circle = np.column_stack(
+            [
+                cx + self.center_circle_radius * np.cos(angles),
+                cy + self.center_circle_radius * np.sin(angles),
+            ]
+        )
+        lines = {
+            "contorno": np.array(
+                [(0.0, 0.0), (length, 0.0), (length, width), (0.0, width), (0.0, 0.0)]
+            ),
+            "meio_campo": np.array([(cx, 0.0), (cx, width)]),
+            "circulo_central": circle,
+        }
+        for side, goal_x, direction in (("esquerda", 0.0, 1.0), ("direita", length, -1.0)):
+            penalty_x = goal_x + direction * self.penalty_area_depth
+            goal_area_x = goal_x + direction * self.goal_area_depth
+            lines[f"grande_area_{side}"] = np.array(
+                [
+                    (goal_x, penalty_top),
+                    (penalty_x, penalty_top),
+                    (penalty_x, penalty_bottom),
+                    (goal_x, penalty_bottom),
+                ]
+            )
+            lines[f"pequena_area_{side}"] = np.array(
+                [
+                    (goal_x, goal_top),
+                    (goal_area_x, goal_top),
+                    (goal_area_x, goal_bottom),
+                    (goal_x, goal_bottom),
+                ]
+            )
+        return lines
+
     def keypoints_array(self, names: Sequence[str] | None = None) -> np.ndarray:
         """Pontos de referência como array ``(N, 2)`` em ``float32``, na ordem pedida.
 

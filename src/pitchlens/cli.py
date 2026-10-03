@@ -52,6 +52,29 @@ def _track(args: argparse.Namespace) -> int:
     return 0
 
 
+def _calibrate(args: argparse.Namespace) -> int:
+    from pitchlens.calibration.detector import PitchKeypointDetector
+    from pitchlens.calibration.pipeline import calibrate_video
+
+    output = args.out or Path("outputs") / f"{args.video.stem}-calibracao.mp4"
+    model = PitchKeypointDetector(args.weights, threshold=args.threshold)
+    summary = calibrate_video(
+        model,
+        args.video,
+        output,
+        min_confidence=args.min_confidence,
+        max_seconds=args.max_seconds,
+    )
+    output.with_suffix(".json").write_text(
+        json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
+    print(
+        f"{summary['frames']} frames, {summary['cobertura_pct']:.0%} calibrados, "
+        f"erro mediano {summary['erro_mediano_m']} m -> {output}"
+    )
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="pitchlens",
@@ -84,6 +107,26 @@ def build_parser() -> argparse.ArgumentParser:
     track.add_argument("--tracker", choices=["botsort", "bytetrack"], default="botsort")
     track.add_argument("--out", type=Path, default=None, help="vídeo anotado de saída")
     track.set_defaults(handler=_track)
+
+    calibrate = commands.add_parser(
+        "calibrate", help="estima a homografia do campo e desenha as linhas sobre o vídeo"
+    )
+    calibrate.add_argument("video", type=Path, help="vídeo de entrada")
+    calibrate.add_argument(
+        "--weights", type=Path, required=True, help="checkpoint do modelo de pontos do gramado"
+    )
+    calibrate.add_argument(
+        "--threshold", type=float, default=0.3, help="confiança mínima para aceitar o campo"
+    )
+    calibrate.add_argument(
+        "--min-confidence",
+        type=float,
+        default=0.5,
+        help="confiança mínima de cada ponto para ele entrar na homografia",
+    )
+    calibrate.add_argument("--max-seconds", type=float, default=None, help="processa só o início")
+    calibrate.add_argument("--out", type=Path, default=None, help="vídeo anotado de saída")
+    calibrate.set_defaults(handler=_calibrate)
     return parser
 
 
