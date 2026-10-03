@@ -28,7 +28,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--epochs", type=int, default=60)
     parser.add_argument("--batch-size", type=int, default=4)
     parser.add_argument("--grad-accum", type=int, default=4)
-    parser.add_argument("--lr", type=float, default=2e-5)
+    # Padrões do próprio RF-DETR. O primeiro treino usou 2e-5 nos dois, cinco vezes menos, e
+    # o modelo ainda estava aprendendo quando as épocas acabaram.
+    parser.add_argument("--lr", type=float, default=1e-4)
+    parser.add_argument("--lr-encoder", type=float, default=1.5e-4)
+    parser.add_argument("--no-ema", action="store_true", help="desliga a média móvel dos pesos")
+    parser.add_argument(
+        "--pretrain", type=Path, default=None, help="pesos iniciais, no lugar dos do Roboflow"
+    )
     parser.add_argument("--resolution", type=int, default=None)
     parser.add_argument("--patience", type=int, default=15)
     parser.add_argument("--seed", type=int, default=42)
@@ -61,10 +68,10 @@ def main() -> None:
         "batch_size": args.batch_size,
         "grad_accum_steps": args.grad_accum,
         "lr": args.lr,
-        "lr_encoder": args.lr,
+        "lr_encoder": args.lr_encoder,
         "early_stopping": True,
         "early_stopping_patience": args.patience,
-        "use_ema": False,
+        "use_ema": not args.no_ema,
         "run_test": False,
     }
     if args.resolution:
@@ -75,9 +82,13 @@ def main() -> None:
             checkpoint if checkpoint.is_absolute() else args.output / checkpoint
         )
 
+    model_options = {}
+    if args.pretrain:
+        model_options["pretrain_weights"] = str(args.pretrain)
     model = RFDETRKeypointPreview(
         num_classes=len(schema.class_names),
         num_keypoints_per_class=schema.num_keypoints_per_class,
+        **model_options,
     )
     started = time.perf_counter()
     model.train(**options)
