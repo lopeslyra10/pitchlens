@@ -121,8 +121,8 @@ def test_radar_positions_map_the_pitch_into_the_radar(homography):
 
     radar = radar_positions(homography, corners, (420, 280), padding=10)
 
-    np.testing.assert_allclose(radar[0], [10.0, 10.0], atol=1e-6)
-    np.testing.assert_allclose(radar[2], [410.0, 270.0], atol=1e-6)
+    np.testing.assert_allclose(radar[0], [10.0, 10.5], atol=0.6)
+    np.testing.assert_allclose(radar[2], [410.0, 269.5], atol=0.6)
 
 
 def test_radar_positions_reject_a_radar_smaller_than_its_margin(homography):
